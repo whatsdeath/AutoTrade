@@ -174,13 +174,13 @@ public class TradeManager : BaseManager<TradeManager>
         {
             double price;
 
-            if(balanceKRW < (myProperty / (int)MarketList.MaxCount))
+            if(balanceKRW < 1000000)
             {
                 price = balanceKRW - 100;
             }
             else
             {
-                price = accountParam.myProperty / (int)MarketList.MaxCount;
+                price = 1000000;
             }
 
             AppManager.Instance.TelegramMassage($"<i>[{TimeManager.Instance.nowTime}]</i>\n<b>[구매시도] <u>{market} : {myProperty.ToString("#,###")}KRW</u></b>\nProfit : {conditionByMarket[market].profitCut} / Loss : {conditionByMarket[market].lossCut} \nUnitPrice : {unitPrice.ToString("#,##0.0####")}\nOrderBalance : {price.ToString("#,###")}", TelegramBotType.Trade);
