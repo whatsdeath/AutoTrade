@@ -6,7 +6,7 @@ using UnityEngine;
 
 public enum MarketList
 {
-    POLYX, CHZ, DOGE, LINK, STX /*SHIB, BLUR, LINK, PYTH*/, MaxCount
+    POLYX, CHZ, DOGE, LINK, STX, WAVES /*SHIB, BLUR, LINK, PYTH*/, MaxCount
 }
 
 public class CandleManager : BaseManager<CandleManager>

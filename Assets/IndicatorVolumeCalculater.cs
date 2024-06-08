@@ -5,7 +5,7 @@ using UnityEngine;
 
 public static class IndicatorVolumeCalculater
 {
-    public static float CalcRSI(List<CandlesParameters> parameters, int power)
+    public static float CalcRSI(List<CandlesParameters> parameters, int power, int index)
     {
         List<decimal> Us = new List<decimal>();
         List<decimal> Ds = new List<decimal>();
@@ -31,7 +31,7 @@ public static class IndicatorVolumeCalculater
         decimal AU = 0, AD = 0, RS;
         float RSI;
 
-        for (int i = Us.Count - 1; i >= 0; i--)
+        for (int i = Us.Count - 1; i >= index; i--)
         {
             AU = (Us[i] * a) + (AU * (1 - a));
             AD = (Ds[i] * a) + (AD * (1 - a));

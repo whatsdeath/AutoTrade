@@ -85,8 +85,11 @@ public abstract class BaseCandleSearch : BaseWebRequest<CandlesParameters>
 
         candleList.Sort((p1, p2) => p2.timestamp.CompareTo(p1.timestamp));
 
-        CandleManager.Instance.SetCandleData(market, candleList);
-        TradeManager.Instance.accountParam.SetUnitPriceByMarket(market, candleList[0].trade_price);
+        if(candleList.Count > 0)
+        {
+            CandleManager.Instance.SetCandleData(market, candleList);
+            TradeManager.Instance.accountParam.SetUnitPriceByMarket(market, candleList[0].trade_price);
+        }
 
         if (TradeManager.Instance.tradeMode)
         {
