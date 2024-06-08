@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "pacific-legend-425715-h1",
+  "private_key_id": "9902384dd407448fa9e7ada90a1185d0fadac65f",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCiJpCdD4cHSikL\nXzEALqYk1DJOe4l3yLQmrZnmhAo7ZjB9tGJwMc/Jqdhqo/VetFmM83JmVuE/i2T4\nvR705wHo7ytpp2ACWCnpq5GC090BVJDHg3t3T/p1lcZKya9yq1NiZuEvYGlU9+aK\n7MYPoyB1rpc2oKdTPxPFeqYgzsYkY6k2WGhRYfuNzn4rvjeQQ4WsIQ0IaEZapCmk\nDWW8dLJ584anuEUu5Tq0wqBOvlX0ZxeSK5cKH8cMfCyU/ZPxkx60ilgumt8ElByg\nI5NuuUW24TJg32koXANa/ygomX2Gg79SnE9GksAs4l4T1Nu1Tjx8O6+t9toCv7Mg\nKfQYA1x3AgMBAAECggEAEnLh1ETef5lT9yvC9vrXw2vzN1O97ceDm7z3vC78vQpg\n7QR3iL1aH184NNXnxnktkShntTYgVasF93kJCyM3Z+nCXjiBZ3Lhfekb2q9BP3QA\nLvsKMqaCYBuE3qB42kqc55698zZ8dYLpE5hh5oiQWmNdaAU6VHHiTX8pZKUyDRSt\nX2CMOQlqTlshJy5/3l2x+9IK5F3g9qGOb0WAQOeaWqIA6ObipIwj64j0ImtHwudk\nbrGzyp6rW5sk9sVUF5VxjGv25E7887QQiZlO8d0sU4zDhXFvynXRhVEZaRV0JdKs\n/Z2kulmnsT4tikm+wAhdjDvEOPDLFJ8b8JW/ATiPfQKBgQDO1pukcX5hjnh5cG8I\naPdv+Dvwk2kSnt83eJXeh16rtp32RhINBIzGtEFZa+PXwYK6yEvbZl5ecFuJms7p\nVNsPRFuaqdi3Otesw3fL2ZYVZRXp1gZdXtvMl4SUZwxlMBS9ZcjRs8GRymsU16yR\nZraPm4bd3EuVTfP48Hh/2ZYxAwKBgQDIsN4iAuLizqegXgFvxZW3RU8oJnyFeo3b\ndvu92cimOq3DOycIg6bV04inDkUSZ9yb43+epupZ0f67HawJQKwkdE1R3Bq1Ag7T\nm/5zYFSANBfpNhC1RdlpCfErvVU6a5amlzsPTEAxmSUVngeJKQL6iM3vcNnW8sJn\nZ3FVysZ6fQKBgFrYByQCdO+EE4XCzAF1mLek3y6aj9uNy5whajGCYyIn4tj3jZYK\nGYpsQQd1S2zHoRNIRYjnPStdTdbyF06D5nKeI12am4ReY7uNXmA6AKEE9MrvJXx8\n3SzOn3xOhjMrGvDUc48m1C2kKcPNtg1mf2gzdtiamNfKlQ0RENuWRVDhAoGAcHO6\nZDBd1VyaTJ+gCnMaKvEpI4Q9LcW4CwsmkACiD5K9nrFcc8bhCttWrNSwG1obITZe\nYhWBJwclxs8fgKe+TUbltEKyrE4U5Ll54EhP0O5fn4tt3UTgR50Mh8e1I+D5Lyt6\nKl49cg0v3GcKLe7O/nb9fXcseObZy3sI5FuUzzkCgYBGtssSXKFd6tTj0wpNFGlL\nKO/lFQ+Nn/DnsmhpvBRS+If11LnieyzsbUMa8XZ1/xUhC7c+p8Xu+p26veXRigBo\nY2Z7S6y+MS5llkDQ9/FKFZzXxTpL6R38l1jrD+SZW4oPXG3yiCc+j3gnVuKyXFOD\nE3RaIADjiJSMLDEss/i+3A==\n-----END PRIVATE KEY-----\n",
+  "client_email": "datamanager@pacific-legend-425715-h1.iam.gserviceaccount.com",
+  "client_id": "101912957144877616392",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/datamanager%40pacific-legend-425715-h1.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
