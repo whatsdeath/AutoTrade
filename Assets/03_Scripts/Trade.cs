@@ -201,7 +201,7 @@ public class Trade : MonoBehaviour
             return;
         }
 
-        DebugByPlatform.Debug.LogOnlyEditer($"구매조건을 탐색합니다. : {market} ::: TradePrice : {datas[1].trade_price} // {kValues[datas[1]]} / {dValues[datas[1]]} // {rsi} // {macd} / {signal}");
+        DebugByPlatform.Debug.LogOnlyEditer($"구매조건을 탐색합니다. : {market} ::: TradePrice : {datas[1].trade_price} // {kValues[datas[1]]} / {dValues[datas[1]]} // {rsi} // {macd - signal}");
 
         //스토캐스틱 거래 포지션 오픈 여부계산
         for (int i = 1; i < datas.Count; i++)
@@ -303,9 +303,9 @@ public class Trade : MonoBehaviour
         DebugByPlatform.Debug.LogOnlyEditer($"판매조건을 탐색합니다. : {market} ::: TradePrice : {datas[1].trade_price} / Loss : {lossCut} / Profit {profitCut}  // (NeerTradePrice : {datas[0].trade_price})");
 
         //로스컷 나거나 익절라인 오면
-        if (datas[1].trade_price < lossCut || datas[1].trade_price > profitCut)
+        if (datas[0].trade_price < lossCut || datas[0].trade_price > profitCut)
         {
-            TradeManager.Instance.SellOrder(market, datas[0].trade_price, datas[1].trade_price > profitCut);
+            TradeManager.Instance.SellOrder(market, datas[0].trade_price, datas[0].trade_price > profitCut);
         }
     }
 

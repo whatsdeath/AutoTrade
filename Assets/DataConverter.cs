@@ -53,11 +53,6 @@ public class DataConverter : MonoBehaviour
         });
     }
 
-    private void OnApplicationQuit()
-    {
-        SendDataConvert(parametersDict, TelegramBotType.DebugLog);
-    }
-
     public void AddDataConvert(string jsonString)
     {
         Dictionary<string, TradingParameters> deserializedDict = JsonConvert.DeserializeObject<Dictionary<string, TradingParameters>>(jsonString);
