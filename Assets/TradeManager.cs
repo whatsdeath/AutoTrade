@@ -71,12 +71,20 @@ public class TradeManager : BaseManager<TradeManager>
     public bool isReady { get; set; }
     public bool tradeMode { get; private set; }
 
+
     protected override void Init()
     {
         accountInfo = CreateComponentObjectInChildrenAndReturn<Accounts>();
         trade = CreateComponentObjectInChildrenAndReturn<Trade>(); 
         order = CreateComponentObjectInChildrenAndReturn<Order>();
         lastTrade = CreateComponentObjectInChildrenAndReturn<LastTrade>();
+    }
+
+    private void Start()
+    {
+        accountInfo.GetAccountInfo();
+        CandleManager.Instance.FirstSearchAll();
+        SetTradeMode(false);
     }
 
     public void SetConditionByMarket(Dictionary<MarketList, TradingParameters> datas)
@@ -91,13 +99,6 @@ public class TradeManager : BaseManager<TradeManager>
         {
             AppManager.Instance.TelegramMassage("마켓 데이터 수가 부족합니다. 확인을 요망합니다.", TelegramBotType.Trade);
         }
-    }
-
-    private void Start()
-    {
-        accountInfo.GetAccountInfo();
-        CandleManager.Instance.FirstSearchAll();
-        SetTradeMode(false);
     }
 
     public void SetTradeReady(bool value)
@@ -187,9 +188,6 @@ public class TradeManager : BaseManager<TradeManager>
             order.BuyOrder(market, price);
 
             accountParam.AccountParamSyncEnd();
-
-            AppManager.Instance.SendData(market.ToString(), conditionByMarket[market], TelegramBotType.Trade);
-            AppManager.Instance.SaveData(market, conditionByMarket[market]);
         }
     }
 
@@ -205,12 +203,22 @@ public class TradeManager : BaseManager<TradeManager>
 
         AppManager.Instance.TelegramMassage($"<i>[{TimeManager.Instance.nowTime}]</i>\n<b>[판매시도] <u>{market} : {myProperty.ToString("#,###")}KRW</u></b>\nWin & Loss : {(isWin ? "WIN" : "LOSS")} / UnitPrice : {unitPrice.ToString("#,##0.0####")}\nOrderVolume : {volume.ToString("#,###")}", TelegramBotType.Trade);        
         order.SellOrder(market, volume);
+
         accountParam.AccountParamSyncEnd();
 
+    }
+
+    public void SaveDataByAfterBuy(MarketList market)
+    {
+        AppManager.Instance.SaveData(market, TradeManager.Instance.conditionByMarket[market]);
+    }
+
+    public void SaveDataByAfterSell(MarketList market)
+    {
         conditionByMarket[market].lossCut = 0.0;
         conditionByMarket[market].profitCut = 0.0;
-        AppManager.Instance.SendData(market.ToString(), conditionByMarket[market], TelegramBotType.Trade);
-        AppManager.Instance.SaveData(market, conditionByMarket[market]);
+
+        AppManager.Instance.SaveData(market, TradeManager.Instance.conditionByMarket[market]);
     }
 
     IEnumerator updateAccountInfo;

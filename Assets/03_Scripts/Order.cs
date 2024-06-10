@@ -1,4 +1,5 @@
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
@@ -112,6 +113,21 @@ public class Order : BaseWebRequest<OrderParameters>
         for (int i = 0;  i < keyList.Count; i++) 
         {
             AppManager.Instance.TelegramMassage($"uuid : {parameters[keyList[i]].uuid} / side : {parameters[keyList[i]].side} / market : {parameters[keyList[i]].market}", TelegramBotType.Trade);
+
+            MarketList market = Enum.Parse<MarketList>(parameters[keyList[i]].market.Remove(0, 4)); //"KRW-" 제거
+
+            //구매하거나 판매가 확정되면 데이터 저장
+            switch(parameters[keyList[i]].side)
+            {
+                case "bid": //구매 시
+                    TradeManager.Instance.SaveDataByAfterBuy(market);
+                    break;
+
+                case "ask": //판매 시
+                    TradeManager.Instance.SaveDataByAfterSell(market);
+                    break;
+            }
+
         }
     }
 }

@@ -31,7 +31,7 @@ public class TimeManager : BaseManager<TimeManager>
             _nowTime = DateTime.Now;
         }        
 
-        UIManager.Instance.VisualizationNowTime();
+        UIManager.Instance.VisualizationNowTime();        
     }
 
     public void TimeCorrection(DateTime time)

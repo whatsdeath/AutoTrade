@@ -18,10 +18,24 @@ public class FireStore : MonoBehaviour
     private string databaseName = "ksj-auto-trade";
     private string firebaseToken;
 
+    float ReCertificationInterval { get => 3600.0f; }
+    float NextCertificationTime;
+
+    bool isCertification;
+
     void Start()
     {
         // Initialize Firestore
         AuthenticateWithGoogle();
+    }
+
+    private void FixedUpdate()
+    {
+        //ReCertificationInterval 시간마다 자동갱신
+        if (Time.realtimeSinceStartup >= NextCertificationTime)
+        {
+            AuthenticateWithGoogle();
+        }
     }
 
     private async void AuthenticateWithGoogle()
@@ -37,6 +51,20 @@ public class FireStore : MonoBehaviour
         firebaseToken = tokenResponse;
 
         Debug.Log("Authenticated with Google, token: " + firebaseToken);
+
+        if (!isCertification)
+        {
+            OnCertification();
+        }
+
+        NextCertificationTime = Time.realtimeSinceStartup + ReCertificationInterval;
+    }
+
+    private void OnCertification()
+    {
+        isCertification = true;
+        TradeManager.Instance.SetConditionByMarket(GetTradingParameters());
+
         /*
         AppManager.Instance.SaveData(MarketList.STX, new TradingParameters
         {
@@ -61,8 +89,6 @@ public class FireStore : MonoBehaviour
             lossCut = 0,
             profitCut = 0
     });*/
-
-        TradeManager.Instance.SetConditionByMarket(GetTradingParameters());
     }
 
 
