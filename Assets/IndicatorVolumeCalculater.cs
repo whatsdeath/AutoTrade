@@ -144,6 +144,53 @@ public static class IndicatorVolumeCalculater
         }
     }
 
+    public static double CalculateEMATradePriceAvg(List<CandlesParameters> parameters, int period, int index)
+    {
+        List<double> emaValues = new List<double>();
+        decimal multiplier = (decimal)2 / (1 + period);
+
+        decimal ema = (decimal)parameters[parameters.Count - 1].candle_acc_trade_price;
+        emaValues.Add((double)ema);
+
+        for (int i = parameters.Count - 2; i >= 0; i--)
+        {
+            ema = ((decimal)parameters[i].candle_acc_trade_price * multiplier) + (ema * (1 - multiplier));
+            emaValues.Add((double)ema);
+        }
+
+        emaValues.Reverse();
+
+        return emaValues[index];
+    }
+
+
+    private static List<double> CalculateEMATradePriceAvg(List<CandlesParameters> parameters, int period, out Dictionary<CandlesParameters, double> tradePrices)
+    {
+        tradePrices = new Dictionary<CandlesParameters, double>();
+
+        List<double> emaValues = new List<double>();
+        decimal multiplier = (decimal)2 / (1 + period);
+
+        decimal ema = (decimal)parameters[parameters.Count - 1].candle_acc_trade_price;
+        emaValues.Add((double)ema);
+
+        for (int i = parameters.Count - 2; i >= 0; i--)
+        {
+            ema = ((decimal)parameters[i].candle_acc_trade_price * multiplier) + (ema * (1 - multiplier));
+            emaValues.Add((double)ema);
+        }
+
+        emaValues.Reverse();
+
+        for (int i = 0; i < emaValues.Count; i++)
+        {
+            tradePrices.Add(parameters[i], emaValues[i]);
+        }
+        return emaValues;
+    }
+
+
+
     public static List<float> CalculateEMA(List<float> prices, int period)
     {
         List<float> emaValues = new List<float>();

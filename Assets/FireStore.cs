@@ -26,9 +26,9 @@ public class FireStore : MonoBehaviour
     void Start()
     {
         // Initialize Firestore
-        AuthenticateWithGoogle();
+        //AuthenticateWithGoogle();
     }
-
+    /*
     private void FixedUpdate()
     {
         //ReCertificationInterval 시간마다 자동갱신
@@ -36,7 +36,7 @@ public class FireStore : MonoBehaviour
         {
             AuthenticateWithGoogle();
         }
-    }
+    }*/
 
     private async void AuthenticateWithGoogle()
     {

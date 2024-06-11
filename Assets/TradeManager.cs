@@ -85,7 +85,40 @@ public class TradeManager : BaseManager<TradeManager>
         accountInfo.GetAccountInfo();
         CandleManager.Instance.FirstSearchAll();
         SetTradeMode(false);
+        SetConditionByMarket();
     }
+
+    public void SetConditionByMarket()
+    {
+        _conditionByMarket.Add(MarketList.SEI, new TradingParameters
+        {
+            name = "SEI",
+
+            stochasticK = 10,
+            stochasticD = 8,
+            stochasticStrength = 5,
+
+            rsiStrength = 16,
+
+            tradePriceEMALength = 36,
+            tradePriceConditionMul = 3.5f
+        });
+
+        _conditionByMarket.Add(MarketList.WAVES, new TradingParameters
+        {
+            name = "WAVES",
+
+            stochasticK = 10,
+            stochasticD = 9,
+            stochasticStrength = 5,
+
+            rsiStrength = 17,
+
+            tradePriceEMALength = 24,
+            tradePriceConditionMul = 2.6f
+        });
+    }
+
 
     public void SetConditionByMarket(Dictionary<MarketList, TradingParameters> datas)
     {
@@ -175,23 +208,23 @@ public class TradeManager : BaseManager<TradeManager>
         {
             double price;
 
-            if(balanceKRW < 1000000)
+            if(balanceKRW < 500000)
             {
                 price = balanceKRW - 100;
             }
             else
             {
-                price = 1000000;
+                price = 500000;
             }
 
-            AppManager.Instance.TelegramMassage($"<i>[{TimeManager.Instance.nowTime}]</i>\n<b>[구매시도] <u>{market} : {myProperty.ToString("#,###")}KRW</u></b>\nProfit : {conditionByMarket[market].profitCut} / Loss : {conditionByMarket[market].lossCut} \nUnitPrice : {unitPrice.ToString("#,##0.0####")}\nOrderBalance : {price.ToString("#,###")}", TelegramBotType.Trade);
+            AppManager.Instance.TelegramMassage($"<i>[{TimeManager.Instance.nowTime}]</i>\n<b>[구매시도] <u>{market} : {myProperty.ToString("#,###")}KRW</u></b>\nUnitPrice : {unitPrice.ToString("#,##0.0####")}\nOrderBalance : {price.ToString("#,###")}", TelegramBotType.Trade);
             order.BuyOrder(market, price);
 
             accountParam.AccountParamSyncEnd();
         }
     }
 
-    public void SellOrder(MarketList market, double unitPrice, bool isWin)
+    public void SellOrder(MarketList market, double unitPrice, bool isWin = false)
     {
         if (!accountParam.isAcoountInfoSync)
         {
@@ -201,7 +234,7 @@ public class TradeManager : BaseManager<TradeManager>
 
         double volume = accountInfoByMarket[market.ToString()].balance * 0.9999f;
 
-        AppManager.Instance.TelegramMassage($"<i>[{TimeManager.Instance.nowTime}]</i>\n<b>[판매시도] <u>{market} : {myProperty.ToString("#,###")}KRW</u></b>\nWin & Loss : {(isWin ? "WIN" : "LOSS")} / UnitPrice : {unitPrice.ToString("#,##0.0####")}\nOrderVolume : {volume.ToString("#,###")}", TelegramBotType.Trade);        
+        AppManager.Instance.TelegramMassage($"<i>[{TimeManager.Instance.nowTime}]</i>\n<b>[판매시도] <u>{market} : {myProperty.ToString("#,###")}KRW</u></b>\nWin & Loss : {(accountInfoByMarket[market.ToString()].avg_buy_price < (unitPrice * 0.998f) ? "WIN" : "LOSS")} / UnitPrice : {accountInfoByMarket[market.ToString()].avg_buy_price} >> {unitPrice.ToString("#,##0.0####")}\nOrderVolume : {volume.ToString("#,###")}", TelegramBotType.Trade);        
         order.SellOrder(market, volume);
 
         accountParam.AccountParamSyncEnd();
@@ -210,15 +243,12 @@ public class TradeManager : BaseManager<TradeManager>
 
     public void SaveDataByAfterBuy(MarketList market)
     {
-        AppManager.Instance.SaveData(market, TradeManager.Instance.conditionByMarket[market]);
+        //AppManager.Instance.SaveData(market, TradeManager.Instance.conditionByMarket[market]);
     }
 
     public void SaveDataByAfterSell(MarketList market)
     {
-        conditionByMarket[market].lossCut = 0.0;
-        conditionByMarket[market].profitCut = 0.0;
-
-        AppManager.Instance.SaveData(market, TradeManager.Instance.conditionByMarket[market]);
+        //AppManager.Instance.SaveData(market, TradeManager.Instance.conditionByMarket[market]);
     }
 
     IEnumerator updateAccountInfo;

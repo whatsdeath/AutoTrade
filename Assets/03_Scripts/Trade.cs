@@ -5,6 +5,7 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Cryptography;
 using UnityEngine;
+using UnityEngine.SocialPlatforms.Impl;
 
 
 [Serializable]
@@ -18,18 +19,8 @@ public class TradingParameters
 
     public int rsiStrength;
 
-    public int macdShort;
-    public int macdLong;
-    public int macdSignal;
-
-    public float overBuy;
-    public float overSell;
-    public float guideRsi;
-
-    public double profitRate;
-
-    public double lossCut;
-    public double profitCut;
+    public int tradePriceEMALength;
+    public float tradePriceConditionMul;
 
     public TradingParameters() { }
     public TradingParameters(TradingParameters other)
@@ -42,18 +33,8 @@ public class TradingParameters
 
         rsiStrength = other.rsiStrength;
 
-        macdShort = other.macdShort;
-        macdLong = other.macdLong;
-        macdSignal = other.macdSignal;
-
-        overBuy = other.overBuy;
-        overSell = other.overSell;
-        guideRsi = other.guideRsi;
-
-        profitRate = other.profitRate;
-
-        lossCut = other.lossCut;
-        profitCut = other.profitCut;        
+        tradePriceEMALength = other.tradePriceEMALength;
+        tradePriceConditionMul = other.tradePriceConditionMul;        
     }
     /*
     public MarketList market { get => Enum.Parse<MarketList>(name); }
@@ -110,219 +91,143 @@ public class Trade : MonoBehaviour
         //rsiStrength Calculation
         float rsi = IndicatorVolumeCalculater.CalcRSI(datas, conditionByMarket[market].rsiStrength, 1);
 
-        //MACD Calculation
-        Dictionary<CandlesParameters, double> macdLineDic, signalLineDic;
-        IndicatorVolumeCalculater.CalculateMACD(datas,
-            conditionByMarket[market].macdShort, conditionByMarket[market].macdLong, conditionByMarket[market].macdSignal, out macdLineDic, out signalLineDic);
+        //tradePriceEMA Calculation
+        double tradePriceEMA = IndicatorVolumeCalculater.CalculateEMATradePriceAvg(datas, conditionByMarket[market].tradePriceEMALength, 1);
 
         if (accountInfoByMarket.ContainsKey(market.ToString())
             && accountInfoByMarket[market.ToString()].balance * accountInfoByMarket[market.ToString()].avg_buy_price >= 5000)
         {
-            //RSIVisualization(market, rsiStrength, buyRSI, sellRSI, true);/
-            if(conditionByMarket[market].lossCut > 0)
-            {
-                SellTrade(market, conditionByMarket[market].lossCut, conditionByMarket[market].profitCut);
-            }
+            SellTrade(market, kValueDic[datas[1]], rsi, tradePriceEMA, conditionByMarket[market].tradePriceConditionMul);
         }
         else
         {
             //RSIVisualization(market, rsiStrength, buyRSI, sellRSI);/ 
-            BuyTrade(market, kValueDic, dValueDic, rsi, macdLineDic[datas[1]], signalLineDic[datas[1]]);
-        }
-        /*
-        //NERSI 표기
-        double lowNEMA = CalcMA(datas, 0, conditionByMarket[market].MA1Power);
-        double highNEMA = CalcMA(datas, 0, conditionByMarket[market].MA2Power);
-
-        bool isNEBullMarket = ChkMAUpCondition(lowNEMA, highNEMA);
-
-        float buyNERSI = isNEBullMarket ? conditionByMarket[market].upBuyRSI : conditionByMarket[market].downBuyRSI;
-        float sellNERSI = isNEBullMarket ? conditionByMarket[market].upSellRSI : conditionByMarket[market].downSellRSI;
-        int NERSIPower = isNEBullMarket ? conditionByMarket[market].upRSIPower : conditionByMarket[market].downRSIPower;
-
-        float NERSI = CalcRSI(datas, 0, NERSIPower);
-
-        //PriceVisualization(market, datas[0].trade_price, isBullMarket);
-        NERSIVisualization(market, NERSI, buyNERSI, sellNERSI);*/
-    }
-
-    public void PriceVisualization(MarketList market, double price, bool isBullMarket)
-    {
-        UIManager.Instance.VisualizationPriceByMarket(market, price, isBullMarket ? "55FF55" : "FF5555");
-    }
-
-    public void RSIVisualization(MarketList market, float RSI, float buyRSI, float sellRSI, bool isSell = false)
-    {
-        if (RSI >= sellRSI)
-        {
-            UIManager.Instance.VisualizationRSIByMarket(market, RSI, isSell ? sellRSI : buyRSI, "55FF55", isSell);
-        }
-        else if (RSI <= buyRSI)
-        {
-            UIManager.Instance.VisualizationRSIByMarket(market, RSI, isSell ? sellRSI : buyRSI, "FF5555", isSell);
-        }
-        else
-        {
-            UIManager.Instance.VisualizationRSIByMarket(market, RSI, isSell ? sellRSI : buyRSI, isSell);
-        }
-
-
-    }
-
-    public void NERSIVisualization(MarketList market, float NERSI, float buyNERSI, float sellNERSI)
-    {
-        if (NERSI >= sellNERSI)
-        {
-            UIManager.Instance.VisualizationNERSIByMarket(market, NERSI, "55FF55");
-        }
-        else if (NERSI <= buyNERSI)
-        {
-            UIManager.Instance.VisualizationNERSIByMarket(market, NERSI, "FF5555");
-        }
-        else
-        {
-            UIManager.Instance.VisualizationNERSIByMarket(market, NERSI);
+            BuyTrade(market, kValueDic[datas[1]], dValueDic[datas[1]], rsi, tradePriceEMA, conditionByMarket[market].tradePriceConditionMul);
         }
     }
 
-    private void BuyTrade(MarketList market,
-        Dictionary<CandlesParameters, float> kValues,
-        Dictionary<CandlesParameters, float> dValues, 
-        float rsi, double macd, double signal)
+
+    private void BuyTrade(MarketList market, float k, float d, float rsi, double tradePriceEMA, float multi)
     {
         var datas = CandleManager.Instance.GetCandleData(market);
 
-        bool isPositionOpen = false;
-        int firstOpenPoint = 0;
+        DebugByPlatform.Debug.LogOnlyEditer($"구매조건을 탐색합니다. : {market} ::: TradePrice : {datas[1].trade_price} // {k} / {d} // {rsi} // {datas[1].candle_acc_trade_price} : {tradePriceEMA} * {multi}");
 
-        //해당하는 지표가 하나라도 존재하지 않으면 종료
-        if (!kValues.ContainsKey(datas[1]) || !dValues.ContainsKey(datas[1]))
+        int score = 0;
+
+        if (ChkBuyConditionStochastic(k, d))
         {
-            return;
+            score++;
         }
 
-        DebugByPlatform.Debug.LogOnlyEditer($"구매조건을 탐색합니다. : {market} ::: TradePrice : {datas[1].trade_price} // {kValues[datas[1]]} / {dValues[datas[1]]} // {rsi} // {macd - signal}");
-
-        //스토캐스틱 거래 포지션 오픈 여부계산
-        for (int i = 1; i < datas.Count; i++)
+        if (ChkBuyConditionRSI(rsi))
         {
-            //둘중 하나라도 값이 없으면
-            if (!kValues.ContainsKey(datas[i]) || !dValues.ContainsKey(datas[i]))
-            {
-                return;
-            }
-
-            //포지션 오픈 시, 최초 오픈지점 탐색
-            if (isPositionOpen)
-            {
-                if (kValues[datas[i]] > conditionByMarket[market].overSell || dValues[datas[i]] > conditionByMarket[market].overSell)
-                {
-                    break;
-                }
-
-                firstOpenPoint = i;
-            }
-
-            if (!dValues.ContainsKey(datas[i]))
-            {
-                return;
-            }
-
-            //과매수 구간일 시 오픈되지 않은것으로 프로세스 종료
-            if (kValues[datas[i]] >= conditionByMarket[market].overBuy)
-            {
-                return;
-            }
-
-            //K, D가 과매도 구간일시 포지션 오픈
-            if (kValues[datas[i]] <= conditionByMarket[market].overSell && dValues[datas[i]] <= conditionByMarket[market].overSell)
-            {
-                isPositionOpen = true;
-                firstOpenPoint = i;
-            }
+            score++;
         }
 
-        if (isPositionOpen)
+        if (ChkBuyConditionFinal(datas[1], tradePriceEMA, multi))
         {
-            //RSI가 기준치 미만이라면 종료
-            if (rsi < conditionByMarket[market].guideRsi)
-            {
-                return;
-            }
+            score++;
+        }
 
-            //RSI가 기준치 이상일 경우 MACD체크
-            //MACD 라인이 시그널 라인 아래라면 종료.
-            if (macd < signal)
-            {                
-                return;
-            }
-
-            double minPrice = double.MaxValue;
-
-            for (int i = 1; i <= Mathf.Max(firstOpenPoint, 24); i++)
-            {
-                if (i >= datas.Count)
-                {
-                    break;
-                }
-
-                if (datas[i].trade_price < minPrice)
-                {
-                    minPrice = datas[i].trade_price;
-                }
-            }
-
-            conditionByMarket[market].lossCut = minPrice;
-            conditionByMarket[market].profitCut = datas[1].trade_price + ((datas[1].trade_price - minPrice) * conditionByMarket[market].profitRate);
-
+        if (score >= 2)
+        {
             TradeManager.Instance.BuyOrder(market, datas[0].trade_price);
-            
+        }         
+    }
+
+    private bool ChkBuyConditionStochastic(float k, float d)
+    {
+        if (k <= 20.0f && d <= 20.0f && (k > d))
+        {
+            return true;
         }
+
+        return false;
+    }
+
+    private bool ChkBuyConditionRSI(float rsi)
+    {
+        if (rsi <= 30.0f)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool ChkBuyConditionFinal(CandlesParameters parameter, double tradePriceAvg, float multi)
+    {
+        if (parameter.candle_acc_trade_price >= tradePriceAvg * multi)
+        {
+            return true;
+        }
+
+        return false;
     }
 
 
 
-    /*
-    private void BuyTrade(MarketList market, float rsiStrength, float buyRSI)
-    {
-        DebugByPlatform.Debug.LogOnlyEditer($"구매조건을 탐색합니다. : {market} (rsiStrength : {rsiStrength})");
-
-        if (rsiStrength <= buyRSI)
-        {
-            var datas = CandleManager.Instance.GetCandleData(market);
-
-            TradeManager.Instance.BuyOrder(market, rsiStrength, datas[0].trade_price);
-        }
-    }*/
-
-
-    private void SellTrade(MarketList market, double lossCut, double profitCut)
+    private void SellTrade(MarketList market, float k, float rsi, double tradePriceEMA, float multi)
     {
         var datas = CandleManager.Instance.GetCandleData(market);
 
         DebugByPlatform.Debug.LogOnlyEditer($"판매조건을 탐색합니다. : {market} ::: TradePrice : {datas[1].trade_price} / Loss : {lossCut} / Profit {profitCut}  // (NeerTradePrice : {datas[0].trade_price})");
 
-        //로스컷 나거나 익절라인 오면
-        if (datas[0].trade_price < lossCut || datas[0].trade_price > profitCut)
+        int score = 0;
+
+        if (ChkSellConditionStochastic(k))
         {
-            TradeManager.Instance.SellOrder(market, datas[0].trade_price, datas[0].trade_price > profitCut);
+            score++;
+        }
+
+        if (ChkSellConditionRSI(rsi))
+        {
+            score++;
+        }
+
+        if (ChkSellConditionFinal(datas[1], tradePriceEMA, multi))
+        {
+            score++;
+        }
+
+        if (score >= 2)
+        {
+            TradeManager.Instance.SellOrder(market, datas[0].trade_price);
         }
     }
 
-
-    /*
-    private void SellTrade(MarketList market, float rsiStrength, float sellRSI, float downRSI, float downBuyRSI, bool deadCross = false)
+    private bool ChkSellConditionStochastic(float k)
     {
-        DebugByPlatform.Debug.LogOnlyEditer($"판매조건을 탐색합니다. : {market} (rsiStrength : {rsiStrength})");
-
-        if ((deadCross && downRSI > downBuyRSI)
-            || (rsiStrength >= sellRSI)) //하락일때는 하락용
+        if (k >= 80.0f)
         {
-            var datas = CandleManager.Instance.GetCandleData(market);
-
-            TradeManager.Instance.SellOrder(market, rsiStrength, datas[0].trade_price);
+            return true;
         }
-    */
+
+        return false;
+    }
+
+
+    private bool ChkSellConditionRSI(float rsi)
+    {
+        if (rsi >= 70.0f)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool ChkSellConditionFinal(CandlesParameters parameter, double tradePriceAvg, float multi)
+    {
+        if (parameter.candle_acc_trade_price >= tradePriceAvg * multi)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
 }
 
 
