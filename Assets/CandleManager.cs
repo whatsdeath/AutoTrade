@@ -7,7 +7,7 @@ using UnityEngine;
 public enum MarketList
 {
     WAVES, FLOW, ARB, SUI, MATIC, ARK, LINK, STX, SHIB, SEI,
-        CHZ, DOGE, KNC, BLUR, PYTH, POLYX, MaxCount
+        CHZ, DOGE, KNC, BLUR, PYTH, POLYX, ONG, NEAR, GLM, SOL, MLK, MaxCount
 }
 
 public class CandleManager : BaseManager<CandleManager>
