@@ -130,7 +130,7 @@ public class TradeManager : BaseManager<TradeManager>
         }
         else
         {
-            AppManager.Instance.TelegramMassage("마켓 데이터 수가 부족합니다. 확인을 요망합니다.", TelegramBotType.Trade);
+            AppManager.Instance.TelegramMassage($"마켓 데이터 수가 부족합니다. 확인을 요망합니다. 마켓 ::: {(int)MarketList.MaxCount} // 데이터 ::: {_conditionByMarket}", TelegramBotType.Trade);
         }
     }
 

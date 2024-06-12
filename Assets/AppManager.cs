@@ -44,21 +44,15 @@ public class AppManager : BaseManager<AppManager>
         dataConverter.AddDataConvert(jsonString);
     }
 
-    public void SendData(string market, TradingParameters data, TelegramBotType botType)
-    {
-        dataConverter.SendDataConvert(market, data, botType);
-    }
-
-    public void SendData(Dictionary<string, TradingParameters> datas, TelegramBotType botType)
-    {
-        dataConverter.SendDataConvert(datas, botType);
-    }
-
     public void SaveData(MarketList market, TradingParameters parameters)
     {
         fireStore.AddOrUpdateTradingParameter(market, parameters);
     }
 
+    public void SaveData(string market, TradingParameters parameters)
+    {
+        fireStore.AddOrUpdateTradingParameter(market, parameters);
+    }
 
     public Dictionary<MarketList, TradingParameters> LoadData() 
     {

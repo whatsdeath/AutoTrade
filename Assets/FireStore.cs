@@ -26,7 +26,7 @@ public class FireStore : MonoBehaviour
     void Start()
     {
         // Initialize Firestore
-        //AuthenticateWithGoogle();
+        AuthenticateWithGoogle();
     }
     /*
     private void FixedUpdate()
@@ -64,31 +64,20 @@ public class FireStore : MonoBehaviour
     {
         isCertification = true;
         TradeManager.Instance.SetConditionByMarket(GetTradingParameters());
-
         /*
-        AppManager.Instance.SaveData(MarketList.STX, new TradingParameters
-        {
-            name = MarketList.STX.ToString(),
+            AppManager.Instance.SaveData(MarketList.POLYX, new TradingParameters
+            {
+                name = (MarketList.POLYX).ToString(),
 
-            stochasticK = 5,
-            stochasticD = 10,
-            stochasticStrength = 5,
+                stochasticK = 10,
+                stochasticD = 10,
+                stochasticStrength = 5,
 
-            rsiStrength = 17,
+                rsiStrength = 18,
 
-            macdShort = 12,
-            macdLong = 25,
-            macdSignal = 13,
-
-            overBuy = 70.0f,
-            overSell = 23.0f,
-            guideRsi = 50.0f,
-        
-            profitRate = 1.05f,
-
-            lossCut = 0,
-            profitCut = 0
-    });*/
+                tradePriceEMALength = 36,
+                tradePriceConditionMul = 4.0f
+            });*/
     }
 
 
@@ -103,9 +92,15 @@ public class FireStore : MonoBehaviour
 
     public void AddOrUpdateTradingParameter(MarketList market, TradingParameters parameters)
     {
+        AddOrUpdateTradingParameter(market.ToString(), parameters);
+    }
+
+
+    public void AddOrUpdateTradingParameter(string market, TradingParameters parameters)
+    {
         try
         {
-            string url = $"https://firestore.googleapis.com/v1/projects/{projectId}/databases/{databaseName}/documents/users/{market.ToString()}";
+            string url = $"https://firestore.googleapis.com/v1/projects/{projectId}/databases/{databaseName}/documents/users/{market}";
             var data = new
             {
                 fields = new Dictionary<string, object>
@@ -115,15 +110,8 @@ public class FireStore : MonoBehaviour
                     { "stochasticD", new { integerValue = parameters.stochasticD } },
                     { "stochasticStrength", new { integerValue = parameters.stochasticStrength } },
                     { "rsiStrength", new { integerValue = parameters.rsiStrength } },
-                    { "macdShort", new { integerValue = parameters.macdShort } },
-                    { "macdLong", new { integerValue = parameters.macdLong } },
-                    { "macdSignal", new { integerValue = parameters.macdSignal } },
-                    { "overBuy", new { doubleValue = parameters.overBuy } },
-                    { "overSell", new { doubleValue = parameters.overSell } },
-                    { "guideRsi", new { doubleValue = parameters.guideRsi } },
-                    { "profitRate", new { doubleValue = parameters.profitRate } },
-                    { "lossCut", new { doubleValue = parameters.lossCut } },
-                    { "profitCut", new { doubleValue = parameters.profitCut } }
+                    { "tradePriceEMALength", new { integerValue = parameters.tradePriceEMALength } },
+                    { "tradePriceConditionMul", new { doubleValue = parameters.tradePriceConditionMul } }
                 }
             };
 
@@ -195,15 +183,8 @@ public class FireStore : MonoBehaviour
                             stochasticD = fields.stochasticD.integerValue,
                             stochasticStrength = fields.stochasticStrength.integerValue,
                             rsiStrength = fields.rsiStrength.integerValue,
-                            macdShort = fields.macdShort.integerValue,
-                            macdLong = fields.macdLong.integerValue,
-                            macdSignal = fields.macdSignal.integerValue,
-                            overBuy = fields.overBuy.doubleValue,
-                            overSell = fields.overSell.doubleValue,
-                            guideRsi = fields.guideRsi.doubleValue,
-                            profitRate = fields.profitRate.doubleValue,
-                            lossCut = fields.lossCut.doubleValue,
-                            profitCut = fields.profitCut.doubleValue
+                            tradePriceEMALength = fields.tradePriceEMALength.integerValue,
+                            tradePriceConditionMul = fields.tradePriceConditionMul.doubleValue,
                         };
 
                         string documentName = document.name;
@@ -249,15 +230,8 @@ public class FirestoreFields
     public FirestoreValue stochasticD { get; set; }
     public FirestoreValue stochasticStrength { get; set; }
     public FirestoreValue rsiStrength { get; set; }
-    public FirestoreValue macdShort { get; set; }
-    public FirestoreValue macdLong { get; set; }
-    public FirestoreValue macdSignal { get; set; }
-    public FirestoreValue overBuy { get; set; }
-    public FirestoreValue overSell { get; set; }
-    public FirestoreValue guideRsi { get; set; }
-    public FirestoreValue profitRate { get; set; }
-    public FirestoreValue lossCut { get; set; }
-    public FirestoreValue profitCut { get; set; }
+    public FirestoreValue tradePriceEMALength { get; set; }
+    public FirestoreValue tradePriceConditionMul { get; set; }
 }
 
 public class FirestoreValue

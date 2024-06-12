@@ -172,7 +172,7 @@ public class Trade : MonoBehaviour
     {
         var datas = CandleManager.Instance.GetCandleData(market);
 
-        DebugByPlatform.Debug.LogOnlyEditer($"판매조건을 탐색합니다. : {market} ::: TradePrice : {datas[1].trade_price} / Loss : {lossCut} / Profit {profitCut}  // (NeerTradePrice : {datas[0].trade_price})");
+        DebugByPlatform.Debug.LogOnlyEditer($"판매조건을 탐색합니다. : {market} ::: TradePrice : {datas[1].trade_price} // {k}  // {rsi} // {datas[1].candle_acc_trade_price} : {tradePriceEMA} * {multi}");
 
         int score = 0;
 
