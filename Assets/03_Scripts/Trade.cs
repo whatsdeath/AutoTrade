@@ -111,7 +111,7 @@ public class Trade : MonoBehaviour
     {
         var datas = CandleManager.Instance.GetCandleData(market);
 
-        DebugByPlatform.Debug.LogOnlyEditer($"구매조건을 탐색합니다. : {market} ::: TradePrice : {datas[1].trade_price} // {k} / {d} // {rsi} // {datas[1].candle_acc_trade_price} : {tradePriceEMA} * {multi}");
+        DebugByPlatform.Debug.LogOnlyEditer($"구매조건을 탐색합니다. : {market} ::: TradePrice : {datas[1].trade_price} // {k.ToString("##0.0")}/{d.ToString("##0.0")}(20.0) // {rsi.ToString("##0.0#")}(30) // {(datas[1].candle_acc_trade_price / tradePriceEMA).ToString("##0.00")}({multi})");
 
         int score = 0;
 
@@ -172,7 +172,7 @@ public class Trade : MonoBehaviour
     {
         var datas = CandleManager.Instance.GetCandleData(market);
 
-        DebugByPlatform.Debug.LogOnlyEditer($"판매조건을 탐색합니다. : {market} ::: TradePrice : {datas[1].trade_price} // {k}  // {rsi} // {datas[1].candle_acc_trade_price} : {tradePriceEMA} * {multi}");
+        DebugByPlatform.Debug.LogOnlyEditer($"판매조건을 탐색합니다. : {market} ::: TradePrice : {datas[1].trade_price} // {k.ToString("##0.0")}(80)  // {rsi.ToString("##0.0")}(70) // {(datas[1].candle_acc_trade_price / tradePriceEMA).ToString("##0.00")}({multi})");
 
         int score = 0;
 

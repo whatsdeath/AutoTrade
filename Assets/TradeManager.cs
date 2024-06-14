@@ -85,52 +85,15 @@ public class TradeManager : BaseManager<TradeManager>
         accountInfo.GetAccountInfo();
         CandleManager.Instance.FirstSearchAll();
         SetTradeMode(false);
-        SetConditionByMarket();
     }
-
-    public void SetConditionByMarket()
-    {
-        _conditionByMarket.Add(MarketList.SEI, new TradingParameters
-        {
-            name = "SEI",
-
-            stochasticK = 10,
-            stochasticD = 8,
-            stochasticStrength = 5,
-
-            rsiStrength = 16,
-
-            tradePriceEMALength = 36,
-            tradePriceConditionMul = 3.5f
-        });
-
-        _conditionByMarket.Add(MarketList.WAVES, new TradingParameters
-        {
-            name = "WAVES",
-
-            stochasticK = 10,
-            stochasticD = 9,
-            stochasticStrength = 5,
-
-            rsiStrength = 17,
-
-            tradePriceEMALength = 24,
-            tradePriceConditionMul = 2.6f
-        });
-    }
-
 
     public void SetConditionByMarket(Dictionary<MarketList, TradingParameters> datas)
     {
         _conditionByMarket = new Dictionary<MarketList, TradingParameters>(datas);
 
-        if (_conditionByMarket.Count.Equals((int)MarketList.MaxCount))
+        if (!_conditionByMarket.Count.Equals((int)MarketList.MaxCount))
         {
-            AppManager.Instance.TelegramMassage("모든 마켓의 데이터가 성공적으로 적용되었습니다.", TelegramBotType.Trade);
-        }
-        else
-        {
-            AppManager.Instance.TelegramMassage($"마켓 데이터 수가 부족합니다. 확인을 요망합니다. 마켓 ::: {(int)MarketList.MaxCount} // 데이터 ::: {_conditionByMarket}", TelegramBotType.Trade);
+            AppManager.Instance.TelegramMassage($"마켓 데이터 수가 부족합니다. 확인을 요망합니다. 마켓 ::: {(int)MarketList.MaxCount} // 데이터 ::: {_conditionByMarket}", TelegramBotType.DebugLog);
         }
     }
 
@@ -204,17 +167,17 @@ public class TradeManager : BaseManager<TradeManager>
             return;
         }
         
-        if (myProperty / (int)MarketList.MaxCount >= 5000.0f)
+        if (balanceKRW / (int)MarketList.MaxCount >= 5000.0f)
         {
             double price;
 
-            if(balanceKRW < 500000)
+            if(balanceKRW < myProperty / 5.0f)
             {
-                price = balanceKRW - 100;
+                price = balanceKRW - 5000;
             }
             else
             {
-                price = 500000;
+                price = myProperty / 5.0f;
             }
 
             AppManager.Instance.TelegramMassage($"<i>[{TimeManager.Instance.nowTime}]</i>\n<b>[구매시도] <u>{market} : {myProperty.ToString("#,###")}KRW</u></b>\nUnitPrice : {unitPrice.ToString("#,##0.0####")}\nOrderBalance : {price.ToString("#,###")}", TelegramBotType.Trade);

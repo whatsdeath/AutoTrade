@@ -133,18 +133,18 @@ public class FireStore : MonoBehaviour
             if (response.IsSuccessStatusCode)
             {
                 Debug.Log($"Document {market} successfully written: " + responseBody);
-                AppManager.Instance.TelegramMassage($"[KRW-{market}] 마켓의 정보가 성공적으로 저장되었습니다.", TelegramBotType.Trade);
+                AppManager.Instance.TelegramMassage($"[KRW-{market}] 마켓의 정보가 성공적으로 저장되었습니다.", TelegramBotType.DebugLog);
             }
             else
             {
                 Debug.LogError($"Error writing document {market}: " + responseBody);
-                AppManager.Instance.TelegramMassage($"[KRW-{market}] 마켓의 정보 저장이 실패하였습니다. : {responseBody}", TelegramBotType.Trade);
+                AppManager.Instance.TelegramMassage($"[KRW-{market}] 마켓의 정보 저장이 실패하였습니다. : {responseBody}", TelegramBotType.DebugLog);
             }
         }
         catch (Exception e)
         {
             Debug.LogError($"Exception writing document {market}: {e.Message}");
-            AppManager.Instance.TelegramMassage($"[KRW-{market}] 마켓의 정보 저장이 실패하였습니다. : {e.Message}", TelegramBotType.Trade);
+            AppManager.Instance.TelegramMassage($"[KRW-{market}] 마켓의 정보 저장이 실패하였습니다. : {e.Message}", TelegramBotType.DebugLog);
         }
     }
 
@@ -194,18 +194,18 @@ public class FireStore : MonoBehaviour
                         result.Add(Enum.Parse<MarketList>(key), parameters);
                     }
                 }
-                AppManager.Instance.TelegramMassage("모든 마켓의 데이터가 로드되었습니다.", TelegramBotType.Trade);
+                AppManager.Instance.TelegramMassage("모든 마켓의 데이터가 로드되었습니다.", TelegramBotType.DebugLog);
             }
             else
             {
                 Debug.LogError("Error getting documents: " + responseBody);
-                AppManager.Instance.TelegramMassage($"데이터가 로드가 실패하였습니다. : {responseBody}", TelegramBotType.Trade);
+                AppManager.Instance.TelegramMassage($"데이터가 로드가 실패하였습니다. : {responseBody}", TelegramBotType.DebugLog);
             }
         }
         catch (Exception e)
         {
             Debug.LogError($"Exception: {e.Message}");
-            AppManager.Instance.TelegramMassage($"데이터가 로드가 실패하였습니다. : {e.Message}", TelegramBotType.Trade);
+            AppManager.Instance.TelegramMassage($"데이터가 로드가 실패하였습니다. : {e.Message}", TelegramBotType.DebugLog);
         }
 
         return result;

@@ -84,7 +84,6 @@ public class Accounts : BaseWebRequest<AccountParam>
     protected override void AfterProcess()
     {
         TradeManager.Instance.accountParam.SetAccountParam(parameters["KRW"]);
-        AppManager.Instance.TelegramMassage($"자산정보가 갱신되었습니다.\nKRW : {TradeManager.Instance.accountParam.balanceKRW}", TelegramBotType.Trade);
 
         for (int i = 0; i < (int)MarketList.MaxCount; i++)
         {
@@ -102,6 +101,11 @@ public class Accounts : BaseWebRequest<AccountParam>
                 TradeManager.Instance.accountParam.SetBalanceByMarket(market, 0.0f);
             }
         }
+    }
+
+    protected override void ErrorProcess()
+    {
+        AppManager.Instance.TelegramMassage($"자산정보의 갱신이 실패하였습니다.", TelegramBotType.DebugLog);
     }
 }
 
