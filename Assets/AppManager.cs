@@ -1,10 +1,18 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Net;
+using System.Net.Sockets;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Networking;
+using UnityEngine.SocialPlatforms;
 
 public class AppManager : BaseManager<AppManager>
 {
+    public string machineName { get => Environment.MachineName; }
+    public string ip;
+
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     static void RuntimeInitialize()
     {
@@ -33,6 +41,23 @@ public class AppManager : BaseManager<AppManager>
         dataConverter = CreateComponentObjectInChildrenAndReturn<DataConverter>();
 
         fireStore = CreateComponentObjectInChildrenAndReturn<FireStore>();
+
+        ip = GetIpAddress();
+    }
+
+    public string GetIpAddress()
+    {
+        var host = Dns.GetHostEntry(Dns.GetHostName());
+        foreach (var ip in host.AddressList)
+        {
+            Debug.Log($"{ip} ::: {ip.AddressFamily}");
+            if (ip.AddressFamily == AddressFamily.InterNetwork)
+            {
+                return ip.ToString();                
+            }
+        }
+
+        return string.Empty;
     }
 
     public async void TelegramMassage(string massage, TelegramBotType type)

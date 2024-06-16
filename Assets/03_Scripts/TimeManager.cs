@@ -54,7 +54,7 @@ public class TimeManager : BaseManager<TimeManager>
     {
         if (!sequence.Equals(processSequence) && !sequence.Equals(ProcessSequence.None))
         {
-            string massege = $"{nowTime} :::\n";
+            string massege = $"{AppManager.Instance.machineName}({AppManager.Instance.ip})\n[{nowTime}]\n";
 
             if (!processSequence.Equals(ProcessSequence.None))
             {
@@ -62,7 +62,7 @@ public class TimeManager : BaseManager<TimeManager>
             }
 
             processSequence = sequence;
-            massege += $"{processSequence}를 실행합니다.";
+            massege += $"<b>{processSequence}를 실행합니다.</b>";
 
             AppManager.Instance.TelegramMassage(massege, TelegramBotType.DebugLog);
         }
