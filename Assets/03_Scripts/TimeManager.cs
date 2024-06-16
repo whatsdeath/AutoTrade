@@ -65,6 +65,17 @@ public class TimeManager : BaseManager<TimeManager>
             massege += $"<b>{processSequence}를 실행합니다.</b>";
 
             AppManager.Instance.TelegramMassage(massege, TelegramBotType.DebugLog);
+
+            switch (sequence)
+            {
+                case ProcessSequence.BackTestPhase:
+                    TestManager.Instance.DataDownload();
+                    break;
+
+                default:
+                    break;
+            }
+
         }
     }
 

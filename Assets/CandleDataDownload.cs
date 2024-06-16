@@ -144,7 +144,7 @@ public class CandleDataDownload : BaseWebRequest<CandlesParameters>
             //CreateScriptableObject.DataSet(name, _candleListDic[name]);
 
             Debug.Log("종료");
-            TestManager.Instance.DataSave(market, _candleListDic[market]);
+            TestManager.Instance.DataSaveAndTestStart(market, _candleListDic[market]);
         }
 
         isNextSearchReady = true;
@@ -157,7 +157,7 @@ public class CandleDataDownload : BaseWebRequest<CandlesParameters>
         //CreateScriptableObject.DataSet(name, _candleListDic[name]);
 
         Debug.Log("종료");
-        TestManager.Instance.DataSave(market, _candleListDic[market]);
+        TestManager.Instance.DataSaveAndTestStart(market, _candleListDic[market]);
 
         isNextSearchReady = true;
     }

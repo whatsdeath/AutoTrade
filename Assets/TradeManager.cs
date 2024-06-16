@@ -97,6 +97,19 @@ public class TradeManager : BaseManager<TradeManager>
         }
     }
 
+    public void SetConditionByMarket(MarketList market, TradingParameters data)
+    {
+        if (_conditionByMarket == null || !_conditionByMarket.ContainsKey(market))
+        {
+            AppManager.Instance.TelegramMassage($"해당 마켓의 기존 데이터가 존재하지 않습니다. ::: ({market})", TelegramBotType.DebugLog);
+            return;
+        }
+
+        _conditionByMarket[market] = new TradingParameters(data);
+        AppManager.Instance.TelegramMassage($"해당 마켓의 데이터가 갱신되었습니다. ::: ({market})", TelegramBotType.DebugLog);
+    }
+
+
     public void SetTradeReady(bool value)
     {
         if (isReady.Equals(value))

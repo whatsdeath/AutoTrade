@@ -3,9 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-
-using Unity.Jobs;
-using UnityEngine.SocialPlatforms.Impl;
+using static Google.Rpc.Context.AttributeContext.Types;
 
 public class TestManager : BaseManager<TestManager>
 {
@@ -15,84 +13,119 @@ public class TestManager : BaseManager<TestManager>
 
     public List<string> marketList { get => marketAll.marketList; }
 
-    public Dictionary<string, List<CandleData>> datasByMarket = new Dictionary<string, List<CandleData>>();
-
-
     public List<CandlesParameters> parameters = new List<CandlesParameters>();
 
+    private MarketList currentTestMarket = 0;
 
+    bool isCurrentTestEnd = true;
+    bool isTestMode { get => TimeManager.Instance.processSequence.Equals(ProcessSequence.BackTestPhase)
+            && TradeManager.Instance.isReady && TradeManager.Instance.tradeMode; }
+
+
+    //Stochastic
+
+    int minStochasticK { get => TradeManager.Instance.conditionByMarket[currentTestMarket].stochasticK - 3 >= 3 ?
+            TradeManager.Instance.conditionByMarket[currentTestMarket].stochasticK - 3 : 3; }
+    int maxStochasticK { get => TradeManager.Instance.conditionByMarket[currentTestMarket].stochasticK + 3; }
+    int minStochasticD { get => TradeManager.Instance.conditionByMarket[currentTestMarket].stochasticD - 3 >= 3 ?
+            TradeManager.Instance.conditionByMarket[currentTestMarket].stochasticD - 3 : 3; }
+    int maxStochasticD { get => TradeManager.Instance.conditionByMarket[currentTestMarket].stochasticD + 3; }
+
+    int minStochasticPower { get => TradeManager.Instance.conditionByMarket[currentTestMarket].stochasticStrength - 5 >= 5 ?
+            TradeManager.Instance.conditionByMarket[currentTestMarket].stochasticD - 5 : 5; }
+    int maxStochasticPower { get => TradeManager.Instance.conditionByMarket[currentTestMarket].stochasticStrength + 5; }
+    /*
+
+    int minStochasticK = 3, maxStochasticK = 15;
+    int minStochasticD = 5, maxStochasticD = 15;
+    int minStochasticPower = 5, maxStochasticPower = 20;*/
+
+    //isRSI
+    int minRSIPower { get => TradeManager.Instance.conditionByMarket[currentTestMarket].rsiStrength - 10 >= 10 ?
+            TradeManager.Instance.conditionByMarket[currentTestMarket].rsiStrength - 10 : 10; }
+    int maxRSIPower { get => TradeManager.Instance.conditionByMarket[currentTestMarket].rsiStrength + 10; }
+
+    //int minRSIPower = 10, maxRSIPower = 30;
+
+    //isMACD    
+    int minMacdShort = 10, maxMacdShort = 20;
+    int minMacdLong = 20, maxMacdLong = 30;
+    int minMacdSignal = 5, maxMacdSignal = 15;
+
+    //TradePrice
+    int minTradePrice { get => TradeManager.Instance.conditionByMarket[currentTestMarket].tradePriceEMALength - 10 >= 20 ?
+            TradeManager.Instance.conditionByMarket[currentTestMarket].tradePriceEMALength - 10 : 20; }
+    int maxTradePrice { get => TradeManager.Instance.conditionByMarket[currentTestMarket].tradePriceEMALength + 10; }
+
+    float minTradeMultiple { get => TradeManager.Instance.conditionByMarket[currentTestMarket].tradePriceConditionMul - 1.0f >= 1.0f ?
+            TradeManager.Instance.conditionByMarket[currentTestMarket].tradePriceConditionMul - 1.0f : 1.0f; }
+    float maxTradeMultiple { get => TradeManager.Instance.conditionByMarket[currentTestMarket].tradePriceConditionMul + 1.0f; }
+    /*
+    int minTradePrice = 20, maxTradePrice = 50;
+    float minTradeMultiple = 1.5f, maxTradeMultiple = 4.0f*/
 
     protected override void Init()
     {
         marketAll = CreateComponentObjectInChildrenAndReturn<MarketAll>();
         dataDownload = CreateComponentObjectInChildrenAndReturn<CandleDataDownload>();
         dataSave = CreateComponentObjectInChildrenAndReturn<MarketDataSave>();
-
-        //LoadDataBase<MarketData, MarketDataBase>(out marketDatabase);
-
-        //datasByMarket.Add("KRW-DOGE", new List<pa>());
-        //datasByMarket["KRW-DOGE"] = marketDatabase.GetData("KRW-DOGE").candleDatas.ToList();
-
-        //Debug.Log(marketDatabase.GetData("KRW-DOGE").candleDatas.Count + "  " + marketDatabase.GetData("KRW-DOGE").dataCount);
-
-
-        if (startTest)
-        {
-            parameters = dataSave.DataLoad(testMarket).dataList.ToList();  // marketDatabase.GetData("KRW-DOGE").candleDatas.ToList();
-            parameters.Sort((p1, p2) => p2.timestamp.CompareTo(p1.timestamp));
-
-            Debug.Log(parameters.Count);
-
-            //StartBackTestNew();
-            //BacktestStochastic(true, 3, 7, 5, 11, 80, 25, 50, 12, 30, 5, 1.6f);
-
-            //{ k} / { d} / { stPower} 
-            // {rsiPower} 
-            // {macdShort} / {macdLong} / {macdSignal} 
-            // {overBuy} / {overSell} / {guideRSI} 
-            // {profita}", TelegramBotType.BackTest);
-            //StartBackTestPhase2(5, 5, 8, 11);
-
-            StartCoroutine(DataSetting(true, true, false, true, false));
-            //StartCoroutine(BackTesting_Guide(3, 10, 7, 18, 12, 21, 6));
-
-            //StartCoroutine(BackTesting_ProfitRate(3, 10, 7, 18, 12, 21, 6, 72, 20, 48));
-            //StartCoroutine(BackTesting_ProfitRate(3, 10, 7, 18, 12, 21, 6, 72, 20, 49));
-
-        }
-        //BackTest.BackTestingCoverRSI(prices);
-        //BackTest.BackTestingCoverRSI(prices, 34.7f, 66.6f, 7);
     }
-    string tmarket { get => "POLYX"; }
-    //BTC SOL
-    bool startTest { get => false; }
-    //bool startTest { get => true; }
 
-    string testMarket { get => $"KRW-{tmarket}"; }
+    string currentTestMarketName { get => currentTestMarket.ToString(); }
+    string currentTestMarketFullname { get => $"KRW-{currentTestMarketName}"; }
 
     float penalty { get => 0.998f; }
 
     #region data  
     public void DataDownload()
     {
-        dataDownload.StartCandleDataDownload(testMarket);
-    }
-
-
-    public void DataSet(string market, List<CandleData> candleDatas)
-    {
-        if (!datasByMarket.ContainsKey(market))
+        if (isTestMode && isCurrentTestEnd)
         {
-            datasByMarket.Add(market, new List<CandleData>());
-        }
+            string massege = $"{AppManager.Instance.machineName}({AppManager.Instance.ip})\n[{TimeManager.Instance.nowTime}]\n";
 
-        datasByMarket[market] = candleDatas.ToList();
+            System.GC.Collect();
+
+            massege += $"<b>{currentTestMarketName}의 테스트를 시작합니다..</b>";
+            AppManager.Instance.TelegramMassage(massege, TelegramBotType.BackTest);
+
+            isCurrentTestEnd = false;
+            dataDownload.StartCandleDataDownload(currentTestMarketFullname);
+        }
     }
 
-
-    public void DataSave(string market, List<CandlesParameters> candleDatas)
+    public void DataSaveAndTestStart(string market, List<CandlesParameters> candleDatas)
     {
         dataSave.CandleSave(market, candleDatas);
+
+        parameters = candleDatas.ToList();
+        parameters.Sort((p1, p2) => p2.timestamp.CompareTo(p1.timestamp));
+
+        Debug.Log(parameters.Count);
+
+        StartCoroutine(DataSetting(true, true, false, true, false));
+    }
+    
+    public void TestComplete()
+    {
+        string massege = $"{AppManager.Instance.machineName}({AppManager.Instance.ip})\n[{TimeManager.Instance.nowTime}]\n";
+
+        massege += $"<b>{currentTestMarketName}의 테스트가 완료되었습니다.</b>";
+        AppManager.Instance.TelegramMassage(massege, TelegramBotType.BackTest);
+        isCurrentTestEnd = true;
+
+        stochasticKValues.Clear();
+        stochasticDValues.Clear();
+        rsiValues.Clear();
+        macdMACDValues.Clear();
+        macdSignalValues.Clear();
+        tradePriceAvg.Clear();        
+
+        currentTestMarket++;
+
+        if(currentTestMarket.Equals(MarketList.MaxCount))
+        {
+            currentTestMarket = 0;
+        }
     }
     #endregion
 
@@ -121,6 +154,8 @@ public class TestManager : BaseManager<TestManager>
     double buyPrice = 0;
     double buyUnitCount = 0;
 
+    double lossCutLine = 0.0f;
+    double profitCutLine = 0.0f;
 
     DateTime buyDateTime = new DateTime();
     DateTime sellDateTime = new DateTime();
@@ -162,11 +197,17 @@ public class TestManager : BaseManager<TestManager>
             {
                 for (int power = minStochasticPower; power <= maxStochasticPower; power++)
                 {
+                    while (!isTestMode)
+                    {
+                        yield return null;
+                    }
+
                     count++;
                     float winRate = 0.0f;
                     var aa = BacktestStochastic(out winRate, k, d, power);
 
-                    if (winRatea < winRate || (winRatea == winRate && maxMoney < aa))
+                    //if (winRatea < winRate || (winRatea == winRate && maxMoney < aa))
+                    if (maxMoney < aa)
                     {
                         winRatea = winRate;
                         maxMoney = aa;
@@ -177,13 +218,11 @@ public class TestManager : BaseManager<TestManager>
                     }
                     Debug.Log($"{count} / {counta} ::: {aa} / {winRate} / {k} / {d} / {power}");
                     yield return null;
-
-
                 }
             }
         }
 
-        AppManager.Instance.TelegramMassage($"[{testMarket}] Stochastic [{count}/{counta}] {maxMoney} / {winRatea} ::: {ka} / {da} / {powera}", TelegramBotType.BackTest);
+        AppManager.Instance.TelegramMassage($"[{currentTestMarketFullname}] Stochastic [{count}/{counta}] {maxMoney} / {winRatea} ::: {ka} / {da} / {powera}", TelegramBotType.BackTest);
 
         StartCoroutine(BackTesting_RSI(ka, da, powera));
     }
@@ -205,42 +244,6 @@ public class TestManager : BaseManager<TestManager>
 
         buyPrice = 0;
         buyUnitCount = 0;
-
-        #region tresh
-        /*
-        if (!stochasticKValues.ContainsKey(stochasticK))
-        {
-            Dictionary<CandlesParameters, float> kValueDic, dValueDic;
-            CalculateStochasticSlow(parameters, stochasticK, stochasticD, stochasticPeriod, out kValueDic, out dValueDic);
-
-            stochasticKValues.Add(stochasticK, new Dictionary<int, Dictionary<int, Dictionary<CandlesParameters, float>>>());
-            stochasticKValues[stochasticK].Add(stochasticD, new Dictionary<int, Dictionary<CandlesParameters, float>>());
-            stochasticKValues[stochasticK][stochasticD].Add(stochasticPeriod, new Dictionary<CandlesParameters, float>(kValueDic));
-
-            stochasticDValues.Add(stochasticK, new Dictionary<int, Dictionary<int, Dictionary<CandlesParameters, float>>>());
-            stochasticDValues[stochasticK].Add(stochasticD, new Dictionary<int, Dictionary<CandlesParameters, float>>());
-            stochasticDValues[stochasticK][stochasticD].Add(stochasticPeriod, new Dictionary<CandlesParameters, float>(dValueDic));
-
-            Dictionary<CandlesParameters, float> rsiValueDic;
-            CalculateRSI(parameters, rsiPeriod, out rsiValueDic);
-
-            tradePriceValues.Add(rsiPeriod, new Dictionary<CandlesParameters, float>(rsiValueDic));
-
-
-            Dictionary<CandlesParameters, double> macdLineDic, signalLineDic;
-            CalculateMACD(parameters, macdShortPeriod, macdLongPeriod, macdSignalPeriod, out macdLineDic, out signalLineDic);
-
-            macdMACDValues.Add(macdShortPeriod, new Dictionary<int, Dictionary<int, Dictionary<CandlesParameters, double>>>());
-            macdMACDValues[macdShortPeriod].Add(macdLongPeriod, new Dictionary<int, Dictionary<CandlesParameters, double>>());
-            macdMACDValues[macdShortPeriod][macdLongPeriod].Add(macdSignalPeriod, new Dictionary<CandlesParameters, double>(macdLineDic));
-
-            macdSignalValues.Add(macdShortPeriod, new Dictionary<int, Dictionary<int, Dictionary<CandlesParameters, double>>>());
-            macdSignalValues[macdShortPeriod].Add(macdLongPeriod, new Dictionary<int, Dictionary<CandlesParameters, double>>());
-            macdSignalValues[macdShortPeriod][macdLongPeriod].Add(macdSignalPeriod, new Dictionary<CandlesParameters, double>(signalLineDic));
-        }*/
-
-        //Debug.Log("오디ㄲㅈ ㅇㄴㅂㅈ");
-        #endregion
 
         for (int i = parameters.Count - 1; i >= 0; i--)
         {
@@ -348,11 +351,17 @@ public class TestManager : BaseManager<TestManager>
 
         for (int rsiLength = minRSIPower; rsiLength <= maxRSIPower; rsiLength++)
         {
+            while (!isTestMode)
+            {
+                yield return null;
+            }
+
             count++;
             float winRate;
             var aa = BacktestRSI(out winRate, rsiLength);
 
-            if (winRatea < winRate || (winRatea == winRate && maxMoney < aa))
+            //if (winRatea < winRate || (winRatea == winRate && maxMoney < aa))
+            if (maxMoney < aa)
             {
                 winRatea = winRate;
                 maxMoney = aa;
@@ -362,11 +371,10 @@ public class TestManager : BaseManager<TestManager>
             yield return null;
         }
 
-        AppManager.Instance.TelegramMassage($"[{testMarket}] RSI [{count}/{counta}] {maxMoney} / {winRatea} ::: {rsiLengtha}", TelegramBotType.BackTest);
+        AppManager.Instance.TelegramMassage($"[{currentTestMarketFullname}] RSI [{count}/{counta}] {maxMoney} / {winRatea} ::: {rsiLengtha}", TelegramBotType.BackTest);
 
         StartCoroutine(BackTesting_Final(k, d, stPower, rsiLengtha));
     }
-
 
     private double BacktestRSI(out float winRate, int rsiPeriod = 14)
     {
@@ -522,13 +530,18 @@ public class TestManager : BaseManager<TestManager>
 
         for (int tradePriceLength = minTradePrice; tradePriceLength <= maxTradePrice; tradePriceLength++)
         {
-            for (float multi = 2.0f; multi <= 4.0f; multi = multi + 0.1f)
+            for (float multi = minTradeMultiple; multi <= maxTradeMultiple; multi = multi + 0.1f)
             {
+                while (!isTestMode)
+                {
+                    yield return null;
+                }
+
                 count++;
                 float winRate;
                 var aa = BacktestFinal(out winRate, k, d, stPower, rsiLength, tradePriceLength, multi);
 
-                if (winRatea < winRate || (winRatea == winRate && maxMoney < aa))
+                if (maxMoney < aa)
                 {
                     winRatea = winRate;
                     maxMoney = aa;
@@ -540,11 +553,33 @@ public class TestManager : BaseManager<TestManager>
             }
         }
 
-        AppManager.Instance.TelegramMassage($"[{testMarket}] Final [{count}/{counta}] {maxMoney} / {winRatea} ::: {tradePriceLengtha} / {multia}", TelegramBotType.BackTest);
+        AppManager.Instance.TelegramMassage($"[{currentTestMarketFullname}] Final [{count}/{counta}] {maxMoney} / {winRatea} ::: {tradePriceLengtha} / {multia}", TelegramBotType.BackTest);
 
-        //StartCoroutine(BackTesting_Guide(k, d, stPower, rsiPower, macdShorta, macdLonga, macdSignala));
+        TradingParameters tradingParameters = new TradingParameters
+        {
+            name = currentTestMarketName,
+
+            stochasticK = k,
+            stochasticD = d,
+            stochasticStrength = stPower,
+
+            rsiStrength = rsiLength,
+
+            tradePriceEMALength = tradePriceLengtha,
+            tradePriceConditionMul = multia
+        };
+
+        TradeManager.Instance.SetConditionByMarket(currentTestMarket, tradingParameters);    
+        AppManager.Instance.SaveData(currentTestMarketName, tradingParameters);
+
+        TestComplete();
+
+        //StartCoroutine(BackTesting_Final2(k, d, stPower, rsiLength, tradePriceLengtha, multia));
     }
 
+
+    double maxPrice;
+    bool isDefence;
 
     private double BacktestFinal(out float winRate, int stochasticK = 3, int stochasticD = 3, int stochasticPeriod = 14, int rsiPeriod = 14, int tradePriceLength = 20, float multi = 3.0f)
     {
@@ -567,43 +602,8 @@ public class TestManager : BaseManager<TestManager>
         buyPrice = 0;
         buyUnitCount = 0;
 
-
-
-        #region tresh
-        /*
-        if (!stochasticKValues.ContainsKey(stochasticK))
-        {
-            Dictionary<CandlesParameters, float> kValueDic, dValueDic;
-            CalculateStochasticSlow(parameters, stochasticK, stochasticD, stochasticPeriod, out kValueDic, out dValueDic);
-
-            stochasticKValues.Add(stochasticK, new Dictionary<int, Dictionary<int, Dictionary<CandlesParameters, float>>>());
-            stochasticKValues[stochasticK].Add(stochasticD, new Dictionary<int, Dictionary<CandlesParameters, float>>());
-            stochasticKValues[stochasticK][stochasticD].Add(stochasticPeriod, new Dictionary<CandlesParameters, float>(kValueDic));
-
-            stochasticDValues.Add(stochasticK, new Dictionary<int, Dictionary<int, Dictionary<CandlesParameters, float>>>());
-            stochasticDValues[stochasticK].Add(stochasticD, new Dictionary<int, Dictionary<CandlesParameters, float>>());
-            stochasticDValues[stochasticK][stochasticD].Add(stochasticPeriod, new Dictionary<CandlesParameters, float>(dValueDic));
-
-            Dictionary<CandlesParameters, float> rsiValueDic;
-            CalculateRSI(parameters, rsiPeriod, out rsiValueDic);
-
-            tradePriceValues.Add(rsiPeriod, new Dictionary<CandlesParameters, float>(rsiValueDic));
-
-
-            Dictionary<CandlesParameters, double> macdLineDic, signalLineDic;
-            CalculateMACD(parameters, macdShortPeriod, macdLongPeriod, macdSignalPeriod, out macdLineDic, out signalLineDic);
-
-            macdMACDValues.Add(macdShortPeriod, new Dictionary<int, Dictionary<int, Dictionary<CandlesParameters, double>>>());
-            macdMACDValues[macdShortPeriod].Add(macdLongPeriod, new Dictionary<int, Dictionary<CandlesParameters, double>>());
-            macdMACDValues[macdShortPeriod][macdLongPeriod].Add(macdSignalPeriod, new Dictionary<CandlesParameters, double>(macdLineDic));
-
-            macdSignalValues.Add(macdShortPeriod, new Dictionary<int, Dictionary<int, Dictionary<CandlesParameters, double>>>());
-            macdSignalValues[macdShortPeriod].Add(macdLongPeriod, new Dictionary<int, Dictionary<CandlesParameters, double>>());
-            macdSignalValues[macdShortPeriod][macdLongPeriod].Add(macdSignalPeriod, new Dictionary<CandlesParameters, double>(signalLineDic));
-        }*/
-
-        //Debug.Log("오디ㄲㅈ ㅇㄴㅂㅈ");
-        #endregion
+        maxPrice = 0;
+        isDefence = false;
 
         for (int i = parameters.Count - 1; i >= 0; i--)
         {
@@ -724,24 +724,286 @@ public class TestManager : BaseManager<TestManager>
 
 
 
+    IEnumerator BackTesting_Final2(int k, int d, int stPower, int rsiLength, int tradePriceLength, float multi)
+    {
+        int counta = 0;
+
+        for (float lossCut = 0.5f; lossCut <= 2.0f; lossCut += 0.1f)
+        {
+            for (float profitCut = 0.5f; profitCut <= 2.0f; profitCut += 0.1f)
+            {
+                counta++;
+            }
+        }
+
+
+        int count = 0;
+
+        double maxMoney = double.MinValue;
+        float winRatea = float.MinValue;
+        float lossCuta = float.MinValue;
+        float profitCuta = float.MinValue;
+
+        for (float lossCut = 0.5f; lossCut <= 5.0f; lossCut += 0.1f)
+        {
+            for (float profitCut = 0.5f; profitCut <= 0.5f; profitCut += 0.1f)
+            {
+                count++;
+                float winRate;
+                var aa = BacktestFinal2(out winRate, k, d, stPower, rsiLength, tradePriceLength, multi, lossCut, profitCut);
+
+                if (maxMoney < aa)
+                {
+                    winRatea = winRate;
+                    maxMoney = aa;
+                    lossCuta = lossCut;
+                    profitCuta = profitCut;
+                }
+                Debug.Log($"{count} / {counta} ::: {aa} / {winRate} // {rsiLength}");
+                yield return null;
+            }
+        }
+
+        AppManager.Instance.TelegramMassage($"[{currentTestMarketFullname}] Final [{count}/{counta}] {maxMoney} / {winRatea} ::: {tradePriceLength} / {multi} ::: {lossCuta} / {profitCuta}", TelegramBotType.BackTest);
+        /*
+        AppManager.Instance.SaveData(currentTestMarketName, new TradingParameters
+        {
+            name = currentTestMarketName,
+
+            stochasticK = k,
+            stochasticD = d,
+            stochasticStrength = stPower,
+
+            rsiStrength = rsiLength,
+
+            tradePriceEMALength = tradePriceLengtha,
+            tradePriceConditionMul = multia
+        });*/
+        //StartCoroutine(BackTesting_Guide(k, d, stPower, rsiPower, macdShorta, macdLonga, macdSignala));
+    }
+
+    float lossCut;
+    float profitCut;
+
+    private double BacktestFinal2(out float winRate, int stochasticK = 3, int stochasticD = 3, int stochasticPeriod = 14, int rsiPeriod = 14, int tradePriceLength = 20, float multi = 3.0f, float losscut = 0.5f, float profitcut = 1.0f)
+    {
+        //변수 세팅
+        StochasticK = stochasticK; // 스토캐스틱 기간
+        StochasticD = stochasticD; // 스토캐스틱 기간
+        StochasticPeriod = stochasticPeriod; // 스토캐스틱 기간
+
+        RsiPeriod = rsiPeriod; // isRSI 기간
+
+        TradePricePeriod = tradePriceLength;
+
+        lossCut = losscut;
+        profitCut = profitcut;
+
+        //자금계산을 위한 변수모음
+        money = 3000000;
+        beforeMoney = 0;
+
+        tradeCount = 0;
+        failCount = 0;
+
+        buyPrice = 0;
+        buyUnitCount = 0;
+
+        maxPrice = 0;
+        isDefence = false;
+        #region tresh
+        /*
+        if (!stochasticKValues.ContainsKey(stochasticK))
+        {
+            Dictionary<CandlesParameters, float> kValueDic, dValueDic;
+            CalculateStochasticSlow(parameters, stochasticK, stochasticD, stochasticPeriod, out kValueDic, out dValueDic);
+
+            stochasticKValues.Add(stochasticK, new Dictionary<int, Dictionary<int, Dictionary<CandlesParameters, float>>>());
+            stochasticKValues[stochasticK].Add(stochasticD, new Dictionary<int, Dictionary<CandlesParameters, float>>());
+            stochasticKValues[stochasticK][stochasticD].Add(stochasticPeriod, new Dictionary<CandlesParameters, float>(kValueDic));
+
+            stochasticDValues.Add(stochasticK, new Dictionary<int, Dictionary<int, Dictionary<CandlesParameters, float>>>());
+            stochasticDValues[stochasticK].Add(stochasticD, new Dictionary<int, Dictionary<CandlesParameters, float>>());
+            stochasticDValues[stochasticK][stochasticD].Add(stochasticPeriod, new Dictionary<CandlesParameters, float>(dValueDic));
+
+            Dictionary<CandlesParameters, float> rsiValueDic;
+            CalculateRSI(parameters, rsiPeriod, out rsiValueDic);
+
+            tradePriceValues.Add(rsiPeriod, new Dictionary<CandlesParameters, float>(rsiValueDic));
+
+
+            Dictionary<CandlesParameters, double> macdLineDic, signalLineDic;
+            CalculateMACD(parameters, macdShortPeriod, macdLongPeriod, macdSignalPeriod, out macdLineDic, out signalLineDic);
+
+            macdMACDValues.Add(macdShortPeriod, new Dictionary<int, Dictionary<int, Dictionary<CandlesParameters, double>>>());
+            macdMACDValues[macdShortPeriod].Add(macdLongPeriod, new Dictionary<int, Dictionary<CandlesParameters, double>>());
+            macdMACDValues[macdShortPeriod][macdLongPeriod].Add(macdSignalPeriod, new Dictionary<CandlesParameters, double>(macdLineDic));
+
+            macdSignalValues.Add(macdShortPeriod, new Dictionary<int, Dictionary<int, Dictionary<CandlesParameters, double>>>());
+            macdSignalValues[macdShortPeriod].Add(macdLongPeriod, new Dictionary<int, Dictionary<CandlesParameters, double>>());
+            macdSignalValues[macdShortPeriod][macdLongPeriod].Add(macdSignalPeriod, new Dictionary<CandlesParameters, double>(signalLineDic));
+        }*/
+
+        //Debug.Log("오디ㄲㅈ ㅇㄴㅂㅈ");
+        #endregion
+
+        for (int i = parameters.Count - 1; i >= 0; i--)
+        {
+            int score = 0;
+
+            //구매한게 있으면 매도관련 판단
+            if (buyUnitCount > 0)
+            {
+                if (ChkSellConditionStochastic(parameters,
+                    stochasticKValues[StochasticK][StochasticD][StochasticPeriod],
+                    stochasticDValues[StochasticK][StochasticD][StochasticPeriod], i))
+                {
+                    score++;
+                }
+
+
+                if (ChkSellConditionRSI(parameters, rsiValues[RsiPeriod], i))
+                {
+                    score++;
+                }
+
+                bool isManyTrade = false;
+                if (ChkSellConditionFinal(parameters, tradePriceAvg[tradePriceLength], multi, i))
+                {
+                    score++;
+                    isManyTrade = true;
+                }
+
+                if (score >= 2)
+                {
+                    money += (parameters[i].trade_price * buyUnitCount) * penalty;
+                    sellDateTime = Convert.ToDateTime(parameters[i].candle_date_time_kst);
+
+                    if (beforeMoney < money)
+                    {
+                        //Debug.Log($"거래 성공? : ({buyDateTime}){beforeMoney.ToString("#,###")} -> ({sellDateTime}){money.ToString("#,###")} :: {lossCutLine} / {profitCutLine}");
+                    }
+                    else
+                    {
+                        //Debug.Log($"거래 실패? : ({buyDateTime}){beforeMoney.ToString("#,###")} -> ({sellDateTime}){money.ToString("#,###")} :: {lossCutLine} / {profitCutLine}");
+                        failCount++;
+                    }
+
+                    buyPrice = 0;
+                    buyUnitCount = 0;
+                }
+
+                //디펜스 모드가 아닐경우 
+                if (!isDefence)
+                {/*
+                    //반익절 구간 지나면 디펜스모드로 전환.
+                    if (parameters[i].trade_price >= buyPrice * (1 + (profitCut * 0.01f)))
+                    {
+                        money += (parameters[i].trade_price * buyUnitCount * 0.5f) * penalty;
+                        buyUnitCount *= 0.5f;
+
+                        buyPrice = parameters[i].trade_price; //구매금액은 이제 의미 없으니 고점으로 사용. 
+                        isDefence = true;
+                    }
+                    //내려갔지만 거래량이 더 터졌을 경우 보류. 반익절라인에 가더라도 이득이 아니겠지만 거기까지 올라가는게 더힘들거라 판단함.
+                    //그냥 정리하고 밑에서 구매했다 생각하자.
+                    else */
+                    if (isManyTrade && parameters[i].trade_price < buyPrice)
+                    {
+                        buyPrice = parameters[i].trade_price;
+                    }
+                    //거래량이 안터지고 손절구간이 지나면 손절하고 거래량 터질때 다시 줍자.
+                    else if (parameters[i].trade_price <= buyPrice * (1 - (lossCut * 0.01f)))
+                    {
+                        money += (parameters[i].trade_price * buyUnitCount) * penalty;
+                        sellDateTime = Convert.ToDateTime(parameters[i].candle_date_time_kst);
+
+                        if (beforeMoney < money)
+                        {
+                            //Debug.Log($"거래 성공? : ({buyDateTime}){beforeMoney.ToString("#,###")} -> ({sellDateTime}){money.ToString("#,###")} :: {lossCutLine} / {profitCutLine}");
+                        }
+                        else
+                        {
+                            //Debug.Log($"거래 실패? : ({buyDateTime}){beforeMoney.ToString("#,###")} -> ({sellDateTime}){money.ToString("#,###")} :: {lossCutLine} / {profitCutLine}");
+                            failCount++;
+                        }
+
+                        buyPrice = 0;
+                        buyUnitCount = 0;
+                    }
+                }
+
+                //디펜스 모드이면 
+                if (isDefence)
+                {
+                    //새로운 고점이 등장하면 고점 갱신
+                    if (parameters[i].trade_price > buyPrice)
+                    {
+                        buyPrice = parameters[i].trade_price;
+                    }
+
+                    //고점대비 손절구간이 지나면 죄다 정리.
+                    if (parameters[i].trade_price <= buyPrice * (1 - (lossCut * 0.01f)))
+                    {
+                        money += (parameters[i].trade_price * buyUnitCount) * penalty;
+                        sellDateTime = Convert.ToDateTime(parameters[i].candle_date_time_kst);
+
+                        if (beforeMoney < money)
+                        {
+                            //Debug.Log($"거래 성공? : ({buyDateTime}){beforeMoney.ToString("#,###")} -> ({sellDateTime}){money.ToString("#,###")} :: {lossCutLine} / {profitCutLine}");
+                        }
+                        else
+                        {
+                            //Debug.Log($"거래 실패? : ({buyDateTime}){beforeMoney.ToString("#,###")} -> ({sellDateTime}){money.ToString("#,###")} :: {lossCutLine} / {profitCutLine}");
+                            failCount++;
+                        }
+
+                        buyPrice = 0;
+                        buyUnitCount = 0;
+                    }
+                }
+            }
+            else
+            //구매한게 없으면 매수관련 판단
+            {
+                if (ChkBuyConditionStochastic(parameters,
+                    stochasticKValues[StochasticK][StochasticD][StochasticPeriod],
+                    stochasticDValues[StochasticK][StochasticD][StochasticPeriod], i))
+                {
+                    score++;
+                }
+
+                if (ChkBuyConditionRSI(parameters, rsiValues[RsiPeriod], i))
+                {
+                    score++;
+                }
+
+                if (ChkBuyConditionFinal(parameters, tradePriceAvg[tradePriceLength], multi, i))
+                {
+                    score++;
+                }
+
+                if (score >= 2)
+                {
+                    buyPrice = parameters[i].trade_price;
+                    buyUnitCount = (money / buyPrice) * penalty;
+                    beforeMoney = money;
+                    money = 0;
+                    buyDateTime = Convert.ToDateTime(parameters[i].candle_date_time_kst);
+                    tradeCount++;
+                }
+            }
+        }
+
+        Debug.Log($"최종액수 {money} 거래횟수 : {tradeCount}, 성공률 : {1 - (failCount / tradeCount)}, 금액 : {(money + (buyPrice * buyUnitCount)).ToString("#,###")}");
+
+
+        winRate = 1 - (failCount / tradeCount);
+        return money + (buyPrice * buyUnitCount);
+    }
 
 
 
-    //Stochastic
-    int minStochasticK = 3, maxStochasticK = 10;
-    int minStochasticD = 3, maxStochasticD = 10;
-    int minStochasticPower = 5, maxStochasticPower = 20;
-
-    //isRSI
-    int minRSIPower = 10, maxRSIPower = 20;
-
-    //isMACD
-    int minMacdShort = 10, maxMacdShort = 20;
-    int minMacdLong = 20, maxMacdLong = 30;
-    int minMacdSignal = 5, maxMacdSignal = 15;
-
-    //TradePrice
-    int minTradePrice = 20, maxTradePrice = 40;
 
 
     Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<CandlesParameters, float>>>>
@@ -814,6 +1076,16 @@ public class TestManager : BaseManager<TestManager>
 
                     for (int power = minStochasticPower; power <= maxStochasticPower; power++)
                     {
+                        while (!isTestMode)
+                        {
+                            yield return null;
+                        }
+
+                        if (stochasticKValues[k][d].ContainsKey(power) && stochasticDValues[k][d].ContainsKey(power))
+                        {
+                            continue;
+                        }
+
                         Dictionary<CandlesParameters, float> kValueDic, dValueDic;
 
                         CalculateStochasticSlow(parameters, k, d, power, out kValueDic, out dValueDic);
@@ -838,6 +1110,16 @@ public class TestManager : BaseManager<TestManager>
 
             for (int rsiPower = minRSIPower; rsiPower <= maxRSIPower; rsiPower++)
             {
+                while (!isTestMode)
+                {
+                    yield return null;
+                }
+
+                if (rsiValues.ContainsKey(rsiPower))
+                {
+                    continue;
+                }
+
                 Dictionary<CandlesParameters, float> rsiValueDic;
                 CalculateRSI(parameters, rsiPower, out rsiValueDic);
 
@@ -867,6 +1149,11 @@ public class TestManager : BaseManager<TestManager>
 
                     for (int macdSignal = minMacdSignal; macdSignal <= maxMacdSignal; macdSignal++)
                     {
+                        while(!isTestMode)
+                        {
+                            yield return null;
+                        }
+
                         Dictionary<CandlesParameters, double> macdLineDic, signalLineDic;
 
                         CalculateMACD(parameters, macdShort, macdLong, macdSignal, out macdLineDic, out signalLineDic);
@@ -876,7 +1163,8 @@ public class TestManager : BaseManager<TestManager>
 
                         count++;
                         Debug.Log($"데이터 생성중 :: {count} / {counta} = {macdMACDValues[macdShort][macdLong][macdSignal][parameters[2]]} / {macdSignalValues[macdShort][macdLong][macdSignal][parameters[2]]}");
-                        yield return null;
+
+                        yield return null;                        
                     }
                 }
             }
@@ -890,11 +1178,23 @@ public class TestManager : BaseManager<TestManager>
 
             for (int tradePrice = minTradePrice; tradePrice <= maxTradePrice; tradePrice++)
             {
+                while (!isTestMode)
+                {
+                    yield return null;
+                }
+
+                if (tradePriceAvg.ContainsKey(tradePrice))
+                {
+                    continue;
+                }
+
                 Dictionary<CandlesParameters, double> tradePriceAvgDic;
 
                 CalculateEMATradePriceAvg(parameters, tradePrice, out tradePriceAvgDic);
 
                 tradePriceAvg.Add(tradePrice, new Dictionary<CandlesParameters, double>(tradePriceAvgDic));
+
+                yield return null;
             }
 
         }
@@ -1154,42 +1454,4 @@ public class TestManager : BaseManager<TestManager>
         return emaValues;
     }
     #endregion
-}
-
-public struct CalcTrade : IJob
-{
-    public int RsiPeriod; // isRSI 기간
-    public int StochasticK; // 스토캐스틱 기간
-    public int StochasticD; // 스토캐스틱 기간
-    public int StochasticPeriod; // 스토캐스틱 기간
-    public int MacdShortPeriod; // isMACD 단기 이동평균 기간
-    public int MacdLongPeriod; // isMACD 장기 이동평균 기간
-    public int MacdSignalPeriod; // isMACD 시그널 라인 기간    
-
-    public float OverBuyPeriod;
-    public float OverSellPeriod;
-
-    public float GuideRsiPeriod;
-
-    public double ProfitRate;
-
-    double money;
-    double beforeMoney;
-
-    float tradeCount;
-    int failCount;
-
-    double buyPrice;
-    double buyUnitCount;
-
-    double lossCutLine;
-    double profitCutLine;
-
-    DateTime buyDateTime;
-    DateTime sellDateTime;
-
-    public void Execute()
-    {
-        throw new NotImplementedException();
-    }
 }

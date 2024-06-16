@@ -83,7 +83,7 @@ public class MarketDataSave : MonoBehaviour
     }
 
     /*
-    public void DataSave(string name)
+    public void DataSaveAndTestStart(string name)
     {
         BinarySerialize(dataByMarket[name], name);
     }

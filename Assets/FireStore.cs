@@ -28,7 +28,7 @@ public class FireStore : MonoBehaviour
         // Initialize Firestore
         AuthenticateWithGoogle();
     }
-    /*
+    
     private void FixedUpdate()
     {
         //ReCertificationInterval 시간마다 자동갱신
@@ -36,7 +36,7 @@ public class FireStore : MonoBehaviour
         {
             AuthenticateWithGoogle();
         }
-    }*/
+    }
 
     private async void AuthenticateWithGoogle()
     {
@@ -80,6 +80,10 @@ public class FireStore : MonoBehaviour
             });*/
     }
 
+    public void ReloadConditionByMarkets()
+    {
+        TradeManager.Instance.SetConditionByMarket(GetTradingParameters());
+    }
 
     public void AddOrUpdateTradingParameters(Dictionary<MarketList, TradingParameters> parametersDictionary)
     {

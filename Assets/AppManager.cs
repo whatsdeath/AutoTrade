@@ -80,6 +80,11 @@ public class AppManager : BaseManager<AppManager>
         fireStore.AddOrUpdateTradingParameter(market, parameters);
     }
 
+    public void ReloadConditionByMarkets()
+    {
+        fireStore.ReloadConditionByMarkets();
+    }
+
     public Dictionary<MarketList, TradingParameters> LoadData() 
     {
         return fireStore.GetTradingParameters();
