@@ -48,7 +48,7 @@ public class CandleManager : BaseManager<CandleManager>
         StartCoroutine(firstSearch);
     }
 
-    public void StartAutoSearch()
+    public void StartAutoSearchTradeMode()
     {
         if(autoSearch != null) 
         {
@@ -56,11 +56,11 @@ public class CandleManager : BaseManager<CandleManager>
             autoSearch = null;
         }
 
-        autoSearch = AutoSearch();
+        autoSearch = AutoSearchTradeMode();
         StartCoroutine(autoSearch);
     }
 
-    public void StopAutoSearch()
+    public void StopAutoSearchTradeMode()
     {
         if (autoSearch != null)
         {
@@ -96,20 +96,24 @@ public class CandleManager : BaseManager<CandleManager>
         return candleListDic[market];
     }
 
-    IEnumerator AutoSearch()
+    IEnumerator AutoSearchTradeMode()
     {
         while (true)
         {
             for (int i = 0; i < (int)MarketList.MaxCount; i++)
             {
-                MarketList curruntMarket = (MarketList)i;
-
-                if (!TradeManager.Instance.ChkTradeCondition(curruntMarket))
+                //트레이드 모드에만 검색.
+                if (TimeManager.Instance.processSequence.Equals(ProcessSequence.TradePhase))
                 {
-                    continue;
-                }
+                    MarketList curruntMarket = (MarketList)i;
 
-                CandleSearchByMarket(curruntMarket);
+                    if (!TradeManager.Instance.ChkTradeCondition(curruntMarket))
+                    {
+                        continue;
+                    }
+
+                    CandleSearchByMarket(curruntMarket);
+                }
 
                 yield return new WaitForSeconds(GlobalValue.ACCESS_INTERVAL);
             }

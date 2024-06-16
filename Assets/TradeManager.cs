@@ -146,12 +146,12 @@ public class TradeManager : BaseManager<TradeManager>
 
     private void StartTradeMode()
     {
-        CandleManager.Instance.StartAutoSearch();
+        CandleManager.Instance.StartAutoSearchTradeMode();
     }
 
     private void StopTradeMode()
     {
-        CandleManager.Instance.StopAutoSearch();
+        CandleManager.Instance.StopAutoSearchTradeMode();
     }
 
     public void TradeByMarket(MarketList market)

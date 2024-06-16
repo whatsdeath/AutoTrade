@@ -26,6 +26,7 @@ public static class GlobalValue
     public const int SAVE_10MIN_DATA_MAX_COUNT = 225000;
     public const int SAVE_15MIN_DATA_MAX_COUNT = 150000;
 
+    public const int CAMDLE_MINUTE_UNIT = (int)MinuteUnit.Minutes_5;
 
     public const int RSI_MAX_STRENGTH = 20;
 }

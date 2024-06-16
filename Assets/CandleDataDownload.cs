@@ -11,7 +11,7 @@ public class CandleDataDownload : BaseWebRequest<CandlesParameters>
 {
     private List<string> marketList { get => TestManager.Instance.marketList; }
 
-    protected MinuteUnit _timeUnit = MinuteUnit.Minutes_5;
+    protected MinuteUnit _timeUnit;
 
     protected override string additionalUrl { get => $"v1/candles/minutes/{timeUnit}"; }
     protected override string apiEndPoint { get => $"market={market}&to={requestLastDate}T{requestLastTime}&count={count}"; }
@@ -59,7 +59,7 @@ public class CandleDataDownload : BaseWebRequest<CandlesParameters>
 
     public void StartCandleDataDownload(string market)
     {
-        StartCandleDataDownload(market, MinuteUnit.Minutes_15);
+        StartCandleDataDownload(market, (MinuteUnit)GlobalValue.CAMDLE_MINUTE_UNIT);
     }
 
     public void StartCandleDataDownload(string market, MinuteUnit minuteUnit)
