@@ -1,3 +1,4 @@
+using Google.Cloud.Firestore;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlTypes;
@@ -6,6 +7,12 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Cryptography;
 using UnityEngine;
 using UnityEngine.SocialPlatforms.Impl;
+
+
+public enum TradeTerms
+{ 
+    Stochastic, RSI, StoRsiTrade
+}
 
 
 [Serializable]
@@ -22,6 +29,16 @@ public class TradingParameters
     public int tradePriceEMALength;
     public float tradePriceConditionMul;
 
+    public double amountStochastic;
+    public double amountRSI;
+    public double amountStoRsiTrade;
+
+    public float winRateStochastic;
+    public float winRateRSI;
+    public float winRateStoRsiTrade;
+
+    public TradeTerms tradeTerms { get => CalcTradeTerms(); }
+
     public TradingParameters() { }
     public TradingParameters(TradingParameters other)
     {
@@ -34,27 +51,36 @@ public class TradingParameters
         rsiStrength = other.rsiStrength;
 
         tradePriceEMALength = other.tradePriceEMALength;
-        tradePriceConditionMul = other.tradePriceConditionMul;        
+        tradePriceConditionMul = other.tradePriceConditionMul;
+
+        amountStochastic = other.amountStochastic;
+        amountRSI = other.amountRSI;
+        amountStoRsiTrade = other.amountStoRsiTrade;
+
+        winRateStochastic = other.winRateStochastic;
+        winRateRSI = other.winRateRSI;
+        winRateStoRsiTrade = other.winRateStoRsiTrade;
     }
-    /*
-    public MarketList market { get => Enum.Parse<MarketList>(name); }
-    public string KRWmarket { get => $"KRW-{name}"; }
 
-    public int stochasticK { get => stochasticK; }
-    public int stochasticD { get => stochasticD; }
-    public int stochasticStrength { get => stochasticStrength; }
+    private TradeTerms CalcTradeTerms()
+    {
+        if (amountStochastic > amountRSI)
+        {
+            if (amountStochastic > amountStoRsiTrade)
+            {
+                return TradeTerms.Stochastic;
+            }            
+        }
+        else
+        {
+            if (amountRSI > amountStoRsiTrade)
+            {
+                return TradeTerms.RSI;
+            }
+        }
 
-    public int rsiStrength { get => rsiStrength; }
-
-    public int macdShort { get => macdShort; }
-    public int macdLong { get => macdLong; }
-    public int macdSignal { get => macdSignal; }
-
-    public float overBuy { get => overBuy; }
-    public float overSell { get => overSell; }
-    public float guideRsi { get => guideRsi; }
-
-    public double profitRate { get => profitRate; }*/
+        return TradeTerms.StoRsiTrade;
+    }
 }
 
 
@@ -111,18 +137,30 @@ public class Trade : MonoBehaviour
     {
         var datas = CandleManager.Instance.GetCandleData(market);
 
-        DebugByPlatform.Debug.LogOnlyEditer($"구매조건을 탐색합니다. : {market} ::: TradePrice : {datas[1].trade_price} // {k.ToString("##0.0")}/{d.ToString("##0.0")}(20.0) // {rsi.ToString("##0.0#")}(30) // {(datas[1].candle_acc_trade_price / tradePriceEMA).ToString("##0.00")}({multi})");
+        DebugByPlatform.Debug.LogOnlyEditer($"구매조건을 탐색합니다. : {market}[{conditionByMarket[market].tradeTerms}] ::: TradePrice : {datas[1].trade_price} // {k.ToString("##0.0")}/{d.ToString("##0.0")}(20.0) // {rsi.ToString("##0.0#")}(30) // {(datas[1].candle_acc_trade_price / tradePriceEMA).ToString("##0.00")}({multi})");
 
         int score = 0;
 
         if (ChkBuyConditionStochastic(k, d))
         {
             score++;
+            //스토캐스틱의 수익이 가장 많은 경우
+            if (conditionByMarket[market].tradeTerms.Equals(TradeTerms.Stochastic))
+            {
+                TradeManager.Instance.BuyOrder(market, datas[0].trade_price);
+                return;
+            }
         }
 
         if (ChkBuyConditionRSI(rsi))
         {
             score++;
+            //RSI의 수익이 가장 많은 경우
+            if (conditionByMarket[market].tradeTerms.Equals(TradeTerms.RSI))
+            {
+                TradeManager.Instance.BuyOrder(market, datas[0].trade_price);
+                return;
+            }
         }
 
         if (ChkBuyConditionFinal(datas[1], tradePriceEMA, multi))
@@ -131,8 +169,12 @@ public class Trade : MonoBehaviour
         }
 
         if (score >= 2)
-        {
-            TradeManager.Instance.BuyOrder(market, datas[0].trade_price);
+        {            
+            //종합지표(스토캐스틱/RSI/거래량)의 수익이 가장 많은 경우
+            if (conditionByMarket[market].tradeTerms.Equals(TradeTerms.StoRsiTrade))
+            {
+                TradeManager.Instance.BuyOrder(market, datas[0].trade_price);
+            }
         }         
     }
 
@@ -172,18 +214,30 @@ public class Trade : MonoBehaviour
     {
         var datas = CandleManager.Instance.GetCandleData(market);
 
-        DebugByPlatform.Debug.LogOnlyEditer($"판매조건을 탐색합니다. : {market} ::: TradePrice : {datas[1].trade_price} // {k.ToString("##0.0")}(80)  // {rsi.ToString("##0.0")}(70) // {(datas[1].candle_acc_trade_price / tradePriceEMA).ToString("##0.00")}({multi})");
+        DebugByPlatform.Debug.LogOnlyEditer($"판매조건을 탐색합니다. : {market}[{conditionByMarket[market].tradeTerms}] ::: TradePrice : {datas[1].trade_price} // {k.ToString("##0.0")}(80)  // {rsi.ToString("##0.0")}(70) // {(datas[1].candle_acc_trade_price / tradePriceEMA).ToString("##0.00")}({multi})");
 
         int score = 0;
 
         if (ChkSellConditionStochastic(k))
         {
             score++;
+            //스토캐스틱의 수익이 가장 많은 경우
+            if (conditionByMarket[market].tradeTerms.Equals(TradeTerms.Stochastic))
+            {
+                TradeManager.Instance.SellOrder(market, datas[0].trade_price);
+                return;
+            }
         }
 
         if (ChkSellConditionRSI(rsi))
         {
             score++;
+            //RSI의 수익이 가장 많은 경우
+            if (conditionByMarket[market].tradeTerms.Equals(TradeTerms.RSI))
+            {
+                TradeManager.Instance.SellOrder(market, datas[0].trade_price);
+                return;
+            }
         }
 
         if (ChkSellConditionFinal(datas[1], tradePriceEMA, multi))
@@ -193,7 +247,11 @@ public class Trade : MonoBehaviour
 
         if (score >= 2)
         {
-            TradeManager.Instance.SellOrder(market, datas[0].trade_price);
+            //종합지표(스토캐스틱/RSI/거래량)의 수익이 가장 많은 경우
+            if (conditionByMarket[market].tradeTerms.Equals(TradeTerms.StoRsiTrade))
+            {
+                TradeManager.Instance.SellOrder(market, datas[0].trade_price);
+            }
         }
     }
 

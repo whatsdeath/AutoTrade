@@ -115,7 +115,13 @@ public class FireStore : MonoBehaviour
                     { "stochasticStrength", new { integerValue = parameters.stochasticStrength } },
                     { "rsiStrength", new { integerValue = parameters.rsiStrength } },
                     { "tradePriceEMALength", new { integerValue = parameters.tradePriceEMALength } },
-                    { "tradePriceConditionMul", new { doubleValue = parameters.tradePriceConditionMul } }
+                    { "tradePriceConditionMul", new { doubleValue = parameters.tradePriceConditionMul } },
+                    { "amountStochastic", new { doubleValue = parameters.amountStochastic } },
+                    { "amountRSI", new { doubleValue = parameters.amountRSI } },
+                    { "amountStoRsiTrade", new { doubleValue = parameters.amountStoRsiTrade } },
+                    { "winRateStochastic", new { doubleValue = parameters.winRateStochastic } },
+                    { "winRateRSI", new { doubleValue = parameters.winRateRSI } },
+                    { "winRateStoRsiTrade", new { doubleValue = parameters.winRateStoRsiTrade } }
                 }
             };
 
@@ -183,12 +189,23 @@ public class FireStore : MonoBehaviour
                         TradingParameters parameters = new TradingParameters
                         {
                             name = fields.name.stringValue,
+
                             stochasticK = fields.stochasticK.integerValue,
                             stochasticD = fields.stochasticD.integerValue,
                             stochasticStrength = fields.stochasticStrength.integerValue,
+
                             rsiStrength = fields.rsiStrength.integerValue,
+
                             tradePriceEMALength = fields.tradePriceEMALength.integerValue,
                             tradePriceConditionMul = fields.tradePriceConditionMul.doubleValue,
+                            
+                            amountStochastic = fields.amountStochastic.doubleValue,
+                            amountRSI = fields.amountRSI.doubleValue,
+                            amountStoRsiTrade = fields.amountStoRsiTrade.doubleValue,
+
+                            winRateStochastic = fields.winRateStochastic.doubleValue,
+                            winRateRSI = fields.winRateRSI.doubleValue,
+                            winRateStoRsiTrade = fields.winRateStoRsiTrade.doubleValue
                         };
 
                         string documentName = document.name;
@@ -236,6 +253,12 @@ public class FirestoreFields
     public FirestoreValue rsiStrength { get; set; }
     public FirestoreValue tradePriceEMALength { get; set; }
     public FirestoreValue tradePriceConditionMul { get; set; }
+    public FirestoreValue amountStochastic { get; set; }
+    public FirestoreValue amountRSI { get; set; }
+    public FirestoreValue amountStoRsiTrade { get; set; }
+    public FirestoreValue winRateStochastic { get; set; }
+    public FirestoreValue winRateRSI { get; set; }
+    public FirestoreValue winRateStoRsiTrade { get; set; }
 }
 
 public class FirestoreValue

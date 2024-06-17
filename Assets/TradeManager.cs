@@ -10,39 +10,6 @@ using Unity.VisualScripting;
 using UnityEngine;
 using static UnityEngine.Rendering.DebugUI;
 
-public class TradeCondition
-{
-    public int MA1Power { get; private set; }
-    public int MA2Power { get; private set; }
-
-    public float upBuyRSI { get; private set; }
-    public float upSellRSI { get; private set; }
-    public int upRSIPower { get; private set; }
-
-    public float downBuyRSI { get; private set; }
-    public float downSellRSI { get; private set; }
-    public int downRSIPower { get; private set; }
-
-    public void SetMAStrength(int power1, int power2)
-    {
-        MA1Power = power1;
-        MA2Power = power2;
-    }
-
-    public void SetRSIConditionByUp(float buyRSI, float sellRSI, int power)
-    {
-        upBuyRSI = buyRSI;
-        upSellRSI = sellRSI;
-        upRSIPower = power;
-    }
-
-    public void SetRSIConditionByDown(float buyRSI, float sellRSI, int power)
-    {
-        downBuyRSI = buyRSI;
-        downSellRSI = sellRSI;
-        downRSIPower = power;
-    }
-}
 
 public class TradeManager : BaseManager<TradeManager>
 {
@@ -193,7 +160,7 @@ public class TradeManager : BaseManager<TradeManager>
                 price = myProperty / 5.0f;
             }
 
-            AppManager.Instance.TelegramMassage($"<i>[{TimeManager.Instance.nowTime}]</i>\n<b>[구매시도] <u>{market} : {myProperty.ToString("#,###")}KRW</u></b>\nUnitPrice : {unitPrice.ToString("#,##0.0####")}\nOrderBalance : {price.ToString("#,###")}", TelegramBotType.Trade);
+            AppManager.Instance.TelegramMassage($"<i>[{TimeManager.Instance.nowTime}]</i>\n<b>[구매시도] <u>{market}[{conditionByMarket[market].tradeTerms}] : {myProperty.ToString("#,###")}KRW</u></b>\nUnitPrice : {unitPrice.ToString("#,##0.0####")}\nOrderBalance : {price.ToString("#,###")}", TelegramBotType.Trade);
             order.BuyOrder(market, price);
 
             accountParam.AccountParamSyncEnd();
@@ -210,7 +177,7 @@ public class TradeManager : BaseManager<TradeManager>
 
         double volume = accountInfoByMarket[market.ToString()].balance * 0.9999f;
 
-        AppManager.Instance.TelegramMassage($"<i>[{TimeManager.Instance.nowTime}]</i>\n<b>[판매시도] <u>{market} : {myProperty.ToString("#,###")}KRW</u></b>\nWin & Loss : {(accountInfoByMarket[market.ToString()].avg_buy_price < (unitPrice * 0.998f) ? "WIN" : "LOSS")} / UnitPrice : {accountInfoByMarket[market.ToString()].avg_buy_price} >> {unitPrice.ToString("#,##0.0####")}\nOrderVolume : {volume.ToString("#,###")}", TelegramBotType.Trade);        
+        AppManager.Instance.TelegramMassage($"<i>[{TimeManager.Instance.nowTime}]</i>\n<b>[판매시도] <u>{market}[{conditionByMarket[market].tradeTerms}] : {myProperty.ToString("#,###")}KRW</u></b>\nWin & Loss : {(accountInfoByMarket[market.ToString()].avg_buy_price < (unitPrice * 0.998f) ? "WIN" : "LOSS")} / UnitPrice : {accountInfoByMarket[market.ToString()].avg_buy_price} >> {unitPrice.ToString("#,##0.0####")}\nOrderVolume : {volume.ToString("#,###")}", TelegramBotType.Trade);        
         order.SellOrder(market, volume);
 
         accountParam.AccountParamSyncEnd();
