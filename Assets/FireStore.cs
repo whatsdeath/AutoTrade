@@ -18,7 +18,7 @@ public class FireStore : MonoBehaviour
     private string databaseName = "ksj-auto-trade";
     private string firebaseToken;
 
-    float ReCertificationInterval { get => 3600.0f; }
+    float ReCertificationInterval { get => 1800.0f; }
     float NextCertificationTime;
 
     bool isCertification;
