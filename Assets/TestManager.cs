@@ -28,12 +28,12 @@ public class TestManager : BaseManager<TestManager>
 
     int minStochasticK { get => TradeManager.Instance.conditionByMarket[currentTestMarket].stochasticK - 3 >= 3 ?
             TradeManager.Instance.conditionByMarket[currentTestMarket].stochasticK - 3 : 3; }
-    int maxStochasticK { get => TradeManager.Instance.conditionByMarket[currentTestMarket].stochasticK + 3 <= 20 ?
-            TradeManager.Instance.conditionByMarket[currentTestMarket].stochasticK + 3 : 20; }
+    int maxStochasticK { get => TradeManager.Instance.conditionByMarket[currentTestMarket].stochasticK + 3 <= 15 ?
+            TradeManager.Instance.conditionByMarket[currentTestMarket].stochasticK + 3 : 15; }
     int minStochasticD { get => TradeManager.Instance.conditionByMarket[currentTestMarket].stochasticD - 3 >= 3 ?
             TradeManager.Instance.conditionByMarket[currentTestMarket].stochasticD - 3 : 3; }
-    int maxStochasticD { get => TradeManager.Instance.conditionByMarket[currentTestMarket].stochasticD + 3 <= 20 ?
-            TradeManager.Instance.conditionByMarket [currentTestMarket].stochasticD + 3 : 20; }
+    int maxStochasticD { get => TradeManager.Instance.conditionByMarket[currentTestMarket].stochasticD + 3 <= 15 ?
+            TradeManager.Instance.conditionByMarket [currentTestMarket].stochasticD + 3 : 15; }
 
     int minStochasticPower { get => TradeManager.Instance.conditionByMarket[currentTestMarket].stochasticStrength - 5 >= 5 ?
             TradeManager.Instance.conditionByMarket[currentTestMarket].stochasticStrength - 5 : 5; }
@@ -48,8 +48,8 @@ public class TestManager : BaseManager<TestManager>
     //isRSI
     int minRSIPower { get => TradeManager.Instance.conditionByMarket[currentTestMarket].rsiStrength - 10 >= 10 ?
             TradeManager.Instance.conditionByMarket[currentTestMarket].rsiStrength - 10 : 10; }
-    int maxRSIPower { get => TradeManager.Instance.conditionByMarket[currentTestMarket].rsiStrength + 10 <= 50 ?
-            TradeManager.Instance.conditionByMarket[currentTestMarket].rsiStrength + 10 : 50; }
+    int maxRSIPower { get => TradeManager.Instance.conditionByMarket[currentTestMarket].rsiStrength + 10 <= 20 ?
+            TradeManager.Instance.conditionByMarket[currentTestMarket].rsiStrength + 10 : 20; }
 
     //int minRSIPower = 10, maxRSIPower = 30;
 
@@ -66,8 +66,8 @@ public class TestManager : BaseManager<TestManager>
 
     float minTradeMultiple { get => TradeManager.Instance.conditionByMarket[currentTestMarket].tradePriceConditionMul - 1.0f >= 1.0f ?
             TradeManager.Instance.conditionByMarket[currentTestMarket].tradePriceConditionMul - 1.0f : 1.0f; }
-    float maxTradeMultiple { get => TradeManager.Instance.conditionByMarket[currentTestMarket].tradePriceConditionMul + 1.0f <= 4.0f ?
-            TradeManager.Instance.conditionByMarket[currentTestMarket].tradePriceConditionMul + 1.0f : 4.0f; }
+    float maxTradeMultiple { get => TradeManager.Instance.conditionByMarket[currentTestMarket].tradePriceConditionMul + 1.0f <= 3.0f ?
+            TradeManager.Instance.conditionByMarket[currentTestMarket].tradePriceConditionMul + 1.0f : 3.0f; }
     /*
     int minTradePrice = 20, maxTradePrice = 50;
     float minTradeMultiple = 1.5f, maxTradeMultiple = 4.0f*/
@@ -112,7 +112,8 @@ public class TestManager : BaseManager<TestManager>
 
         StartCoroutine(DataSetting(true, true, false, true, false));
     }
-    
+
+    bool isRetest;
     public void TestComplete()
     {
         string massege = $"{AppManager.Instance.machineName}({AppManager.Instance.ip})\n[{TimeManager.Instance.nowTime}]\n";
@@ -128,7 +129,12 @@ public class TestManager : BaseManager<TestManager>
         macdSignalValues.Clear();
         tradePriceAvg.Clear();        
 
-        currentTestMarket++;
+        if (!isRetest)
+        {
+            currentTestMarket++;
+        }
+
+        isRetest = false;
 
         if(currentTestMarket.Equals(MarketList.MaxCount))
         {
@@ -236,12 +242,26 @@ public class TestManager : BaseManager<TestManager>
 
         AppManager.Instance.TelegramMassage($"[{currentTestMarketFullname}] Stochastic [{count}/{counta}] {maxMoney} / {winRatea} ::: {ka} / {da} / {powera}", TelegramBotType.BackTest);
 
-        testParameter.amountStochastic = maxMoney;
-        testParameter.winRateStochastic = winRatea;
+        if (count.Equals(0))
+        {
+            testParameter.amountStochastic = 0;
+            testParameter.winRateStochastic = 0;
 
-        testParameter.stochasticK = ka;
-        testParameter.stochasticD = da;
-        testParameter.stochasticStrength = powera;
+            testParameter.stochasticK = 15;
+            testParameter.stochasticD = 15;
+            testParameter.stochasticStrength = 20;
+
+            isRetest = true;
+        }
+        else
+        {
+            testParameter.amountStochastic = maxMoney;
+            testParameter.winRateStochastic = winRatea;
+
+            testParameter.stochasticK = ka;
+            testParameter.stochasticD = da;
+            testParameter.stochasticStrength = powera;
+        }
 
         StartCoroutine(BackTesting_RSI(ka, da, powera));
     }
@@ -392,10 +412,22 @@ public class TestManager : BaseManager<TestManager>
 
         AppManager.Instance.TelegramMassage($"[{currentTestMarketFullname}] RSI [{count}/{counta}] {maxMoney} / {winRatea} ::: {rsiLengtha}", TelegramBotType.BackTest);
 
-        testParameter.amountRSI = maxMoney;
-        testParameter.winRateRSI = winRatea;
+        if (count.Equals(0))
+        {
+            testParameter.amountRSI = 0;
+            testParameter.winRateRSI = 0;
 
-        testParameter.rsiStrength = rsiLengtha;
+            testParameter.rsiStrength = 20;
+
+            isRetest = true;
+        }
+        else
+        {
+            testParameter.amountRSI = maxMoney;
+            testParameter.winRateRSI = winRatea;
+
+            testParameter.rsiStrength = rsiLengtha;
+        }
 
         StartCoroutine(BackTesting_Final(k, d, stPower, rsiLengtha));
     }
@@ -579,11 +611,24 @@ public class TestManager : BaseManager<TestManager>
 
         AppManager.Instance.TelegramMassage($"[{currentTestMarketFullname}] Final [{count}/{counta}] {maxMoney} / {winRatea} ::: {tradePriceLengtha} / {multia}", TelegramBotType.BackTest);
 
-        testParameter.amountStoRsiTrade = maxMoney;
-        testParameter.winRateStoRsiTrade = winRatea;
+        if (count.Equals(0))
+        {
+            testParameter.amountStoRsiTrade = 0;
+            testParameter.winRateStoRsiTrade = 0;
 
-        testParameter.tradePriceEMALength = tradePriceLengtha;
-        testParameter.tradePriceConditionMul = multia;
+            testParameter.tradePriceEMALength = 30;
+            testParameter.tradePriceConditionMul = 2;
+
+            isRetest = true;
+        }
+        else
+        {
+            testParameter.amountStoRsiTrade = maxMoney;
+            testParameter.winRateStoRsiTrade = winRatea;
+
+            testParameter.tradePriceEMALength = tradePriceLengtha;
+            testParameter.tradePriceConditionMul = multia;
+        }
 
         TradingParameters tradingParameters = new TradingParameters(testParameter);
 
