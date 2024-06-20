@@ -22,7 +22,7 @@ public static class GlobalValue
 
     public const float ACCESS_INTERVAL = 0.2f;
 
-    public const int SAVE_DATA_MAX_COUNT = 30000; //4500;//150000;// 450000;
+    public const int SAVE_DATA_MAX_COUNT = 10000; //4500;//150000;// 450000;
     public const int SAVE_10MIN_DATA_MAX_COUNT = 225000;
     public const int SAVE_15MIN_DATA_MAX_COUNT = 150000;
 

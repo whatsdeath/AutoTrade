@@ -8,6 +8,7 @@ using System.Security.Cryptography;
 using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
+using static Google.Cloud.Firestore.V1.StructuredQuery.Types;
 using static UnityEngine.Rendering.DebugUI;
 
 
@@ -62,13 +63,45 @@ public class TradeManager : BaseManager<TradeManager>
         {
             AppManager.Instance.TelegramMassage($"마켓 데이터 수가 부족합니다. 확인을 요망합니다. 마켓 ::: {(int)MarketList.MaxCount} // 데이터 ::: {_conditionByMarket}", TelegramBotType.DebugLog);
         }
+
+        if (!_conditionByMarket.ContainsKey(MarketList.SNT))
+        {
+            _conditionByMarket.Add(MarketList.SNT, new TradingParameters {
+
+                name = MarketList.SNT.ToString(),
+
+                stochasticK = 6,
+                stochasticD = 6,
+                stochasticStrength = 10,
+
+                rsiStrength = 15,
+
+                tradePriceEMALength = 30,
+                tradePriceConditionMul = 2.0f,
+
+                amountStochastic = 0,
+                amountRSI = 0,
+                amountStoRsiTrade = 0,
+
+                winRateStochastic = 0.0f,
+                winRateRSI = 0.0f,
+                winRateStoRsiTrade = 0.0f
+            });
+        }
     }
 
     public void SetConditionByMarket(MarketList market, TradingParameters data)
     {
-        if (_conditionByMarket == null || !_conditionByMarket.ContainsKey(market))
+        if (_conditionByMarket == null)
+        {
+            AppManager.Instance.TelegramMassage($"트레이더 매니저에 이상이 발생하였습니다. (_conditionByMarket)", TelegramBotType.DebugLog);
+            return;
+        }
+        
+        if (!_conditionByMarket.ContainsKey(market))
         {
             AppManager.Instance.TelegramMassage($"해당 마켓의 기존 데이터가 존재하지 않습니다. ::: ({market})", TelegramBotType.DebugLog);
+            _conditionByMarket[market] = new TradingParameters(data);
             return;
         }
 
