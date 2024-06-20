@@ -47,9 +47,20 @@ public class TestManager : BaseManager<TestManager>
 
     //isRSI
     int minRSIPower { get => TradeManager.Instance.conditionByMarket[currentTestMarket].rsiStrength - 10 >= 10 ?
-            TradeManager.Instance.conditionByMarket[currentTestMarket].rsiStrength - 10 : 10; }
+            TradeManager.Instance.conditionByMarket[currentTestMarket].rsiStrength - 5 : 10; }
     int maxRSIPower { get => TradeManager.Instance.conditionByMarket[currentTestMarket].rsiStrength + 10 <= 20 ?
-            TradeManager.Instance.conditionByMarket[currentTestMarket].rsiStrength + 10 : 20; }
+            TradeManager.Instance.conditionByMarket[currentTestMarket].rsiStrength + 5 : 20; }
+
+    int minSellRSIPower
+    {
+        get => TradeManager.Instance.conditionByMarket[currentTestMarket].rsiStrength - 10 >= 10 ?
+        TradeManager.Instance.conditionByMarket[currentTestMarket].rsiStrength - 5 : 10;
+    }
+    int maxSellRSIPower
+    {
+        get => TradeManager.Instance.conditionByMarket[currentTestMarket].rsiStrength + 10 <= 20 ?
+            TradeManager.Instance.conditionByMarket[currentTestMarket].rsiStrength + 5 : 20;
+    }
 
     //int minRSIPower = 10, maxRSIPower = 30;
 
@@ -378,7 +389,10 @@ public class TestManager : BaseManager<TestManager>
 
         for (int rsiLength = minRSIPower; rsiLength <= maxRSIPower; rsiLength++)
         {
-            counta++;
+            for (int rsiSellLength = minSellRSIPower; rsiSellLength <= maxSellRSIPower; rsiSellLength++)
+            {
+                counta++;
+            }
         }
 
 
@@ -390,24 +404,27 @@ public class TestManager : BaseManager<TestManager>
 
         for (int rsiLength = minRSIPower; rsiLength <= maxRSIPower; rsiLength++)
         {
-            while (!isTestMode)
+            for (int rsiSellLength = minSellRSIPower; rsiSellLength <= maxSellRSIPower; rsiSellLength++)
             {
+                while (!isTestMode)
+                {
+                    yield return null;
+                }
+
+                count++;
+                float winRate;
+                var aa = BacktestRSI(out winRate, rsiLength);
+
+                //if (winRatea < winRate || (winRatea == winRate && maxMoney < aa))
+                if (maxMoney < aa)
+                {
+                    winRatea = winRate;
+                    maxMoney = aa;
+                    rsiLengtha = rsiLength;
+                }
+                Debug.Log($"{count} / {counta} ::: {aa} / {winRate} // {rsiLength}");
                 yield return null;
             }
-
-            count++;
-            float winRate;
-            var aa = BacktestRSI(out winRate, rsiLength);
-
-            //if (winRatea < winRate || (winRatea == winRate && maxMoney < aa))
-            if (maxMoney < aa)
-            {
-                winRatea = winRate;
-                maxMoney = aa;
-                rsiLengtha = rsiLength;
-            }
-            Debug.Log($"{count} / {counta} ::: {aa} / {winRate} // {rsiLength}");
-            yield return null;
         }
 
         AppManager.Instance.TelegramMassage($"[{currentTestMarketFullname}] RSI [{count}/{counta}] {maxMoney} / {winRatea} ::: {rsiLengtha}", TelegramBotType.BackTest);

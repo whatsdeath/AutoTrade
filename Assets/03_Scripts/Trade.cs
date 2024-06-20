@@ -25,6 +25,7 @@ public class TradingParameters
     public int stochasticStrength;
 
     public int rsiStrength;
+    public int rsiSellStrength;
 
     public int tradePriceEMALength;
     public float tradePriceConditionMul;
