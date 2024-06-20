@@ -15,7 +15,7 @@ public class TestManager : BaseManager<TestManager>
 
     public List<CandlesParameters> parameters = new List<CandlesParameters>();
 
-    private MarketList currentTestMarket = MarketList.MATIC;
+    private MarketList currentTestMarket = MarketList.SNT;
 
     bool isCurrentTestEnd = true;
     bool isTestMode { get => TimeManager.Instance.processSequence.Equals(ProcessSequence.BackTestPhase)
@@ -109,6 +109,8 @@ public class TestManager : BaseManager<TestManager>
         parameters.Sort((p1, p2) => p2.timestamp.CompareTo(p1.timestamp));
 
         Debug.Log(parameters.Count);
+
+        testParameter = new TradingParameters(TradeManager.Instance.conditionByMarket[currentTestMarket]);
 
         StartCoroutine(DataSetting(true, true, false, true, false));
     }
@@ -252,6 +254,14 @@ public class TestManager : BaseManager<TestManager>
             testParameter.stochasticStrength = 20;
 
             isRetest = true;
+
+            TradingParameters tradingParameters = new TradingParameters(testParameter);
+
+            TradeManager.Instance.SetConditionByMarket(currentTestMarket, tradingParameters);
+            AppManager.Instance.SaveData(currentTestMarketName, tradingParameters);
+
+            TestComplete();
+            yield break;
         }
         else
         {
@@ -420,6 +430,14 @@ public class TestManager : BaseManager<TestManager>
             testParameter.rsiStrength = 20;
 
             isRetest = true;
+
+            TradingParameters tradingParameters = new TradingParameters(testParameter);
+
+            TradeManager.Instance.SetConditionByMarket(currentTestMarket, tradingParameters);
+            AppManager.Instance.SaveData(currentTestMarketName, tradingParameters);
+
+            TestComplete();
+            yield break;
         }
         else
         {

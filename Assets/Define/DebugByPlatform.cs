@@ -14,7 +14,7 @@ namespace DebugByPlatform
 #else
             if(AppManager.Instance != null)
             {
-                AppManager.Instance.TelegramMassage(message.ToString(), TelegramLogType.DebugLog);
+                AppManager.Instance.TelegramMassage(message.ToString(), TelegramBotType.DebugLog);
             }
 #endif
         }
