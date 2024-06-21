@@ -20,23 +20,27 @@ public class TradingParameters
 {
     public string name;
 
-    public int stochasticK;
-    public int stochasticD;
-    public int stochasticStrength;
+    public int stochasticK = 6;
+    public int stochasticD = 6;
+    public int stochasticStrength = 10;
 
-    public int rsiStrength;
-    public int rsiSellStrength;
+    public int stochasticSellK = 6;
+    public int stochasticSellStrength = 10;
 
-    public int tradePriceEMALength;
-    public float tradePriceConditionMul;
+    public int rsiStrength = 15;
+    public int rsiSellStrength = 15;
 
-    public double amountStochastic;
-    public double amountRSI;
-    public double amountStoRsiTrade;
+    public int tradePriceEMALength = 30;
+    public float tradePriceConditionMul = 2.0f;
+    public float tradeSellPriceConditionMul = 2.0f;
 
-    public float winRateStochastic;
-    public float winRateRSI;
-    public float winRateStoRsiTrade;
+    public double amountStochastic = 0;
+    public double amountRSI = 0;
+    public double amountStoRsiTrade = 0;
+
+    public float winRateStochastic = 0;
+    public float winRateRSI = 0;
+    public float winRateStoRsiTrade = 0;
 
     public TradeTerms tradeTerms { get => CalcTradeTerms(); }
 
@@ -49,10 +53,15 @@ public class TradingParameters
         stochasticD = other.stochasticD;
         stochasticStrength = other.stochasticStrength;
 
+        stochasticSellK = other.stochasticSellK;
+        stochasticSellStrength = other.stochasticSellStrength;
+
         rsiStrength = other.rsiStrength;
+        rsiSellStrength = other.rsiSellStrength;
 
         tradePriceEMALength = other.tradePriceEMALength;
         tradePriceConditionMul = other.tradePriceConditionMul;
+        tradeSellPriceConditionMul = other.tradeSellPriceConditionMul;
 
         amountStochastic = other.amountStochastic;
         amountRSI = other.amountRSI;
@@ -115,8 +124,14 @@ public class Trade : MonoBehaviour
             conditionByMarket[market].stochasticK, conditionByMarket[market].stochasticD, conditionByMarket[market].stochasticStrength,
             out kValueDic, out dValueDic);
 
+        Dictionary<CandlesParameters, float> kSellValueDic, dSellValueDic;
+        IndicatorVolumeCalculater.CalculateStochasticSlow(datas,
+            conditionByMarket[market].stochasticSellK, conditionByMarket[market].stochasticD, conditionByMarket[market].stochasticSellStrength,
+            out kSellValueDic, out dSellValueDic);
+
         //rsiStrength Calculation
-        float rsi = IndicatorVolumeCalculater.CalcRSI(datas, conditionByMarket[market].rsiStrength, 1);
+        float rsiBuy = IndicatorVolumeCalculater.CalcRSI(datas, conditionByMarket[market].rsiStrength, 1);
+        float rsiSell = IndicatorVolumeCalculater.CalcRSI(datas, conditionByMarket[market].rsiSellStrength, 1);
 
         //tradePriceEMA Calculation
         double tradePriceEMA = IndicatorVolumeCalculater.CalculateEMATradePriceAvg(datas, conditionByMarket[market].tradePriceEMALength, 1);
@@ -124,12 +139,12 @@ public class Trade : MonoBehaviour
         if (accountInfoByMarket.ContainsKey(market.ToString())
             && accountInfoByMarket[market.ToString()].balance * accountInfoByMarket[market.ToString()].avg_buy_price >= 5000)
         {
-            SellTrade(market, kValueDic[datas[1]], rsi, tradePriceEMA, conditionByMarket[market].tradePriceConditionMul);
+            SellTrade(market, kSellValueDic[datas[1]], rsiSell, tradePriceEMA, conditionByMarket[market].tradeSellPriceConditionMul);
         }
         else
         {
             //RSIVisualization(market, rsiStrength, buyRSI, sellRSI);/ 
-            BuyTrade(market, kValueDic[datas[1]], dValueDic[datas[1]], rsi, tradePriceEMA, conditionByMarket[market].tradePriceConditionMul);
+            BuyTrade(market, kValueDic[datas[1]], dValueDic[datas[1]], rsiBuy, tradePriceEMA, conditionByMarket[market].tradePriceConditionMul);
         }
     }
 

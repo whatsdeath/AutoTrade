@@ -110,15 +110,25 @@ public class FireStore : MonoBehaviour
                 fields = new Dictionary<string, object>
                 {
                     { "name", new { stringValue = parameters.name } },
+
                     { "stochasticK", new { integerValue = parameters.stochasticK } },
                     { "stochasticD", new { integerValue = parameters.stochasticD } },
                     { "stochasticStrength", new { integerValue = parameters.stochasticStrength } },
+
+                    { "stochasticSellK", new { integerValue = parameters.stochasticSellK } },
+                    { "stochasticSellStrength", new { integerValue = parameters.stochasticSellStrength } },
+
                     { "rsiStrength", new { integerValue = parameters.rsiStrength } },
+                    { "rsiSellStrength", new { integerValue = parameters.rsiSellStrength } },
+
                     { "tradePriceEMALength", new { integerValue = parameters.tradePriceEMALength } },
                     { "tradePriceConditionMul", new { doubleValue = parameters.tradePriceConditionMul } },
+                    { "tradeSellPriceConditionMul", new { doubleValue = parameters.tradeSellPriceConditionMul } },
+
                     { "amountStochastic", new { doubleValue = parameters.amountStochastic } },
                     { "amountRSI", new { doubleValue = parameters.amountRSI } },
                     { "amountStoRsiTrade", new { doubleValue = parameters.amountStoRsiTrade } },
+
                     { "winRateStochastic", new { doubleValue = parameters.winRateStochastic } },
                     { "winRateRSI", new { doubleValue = parameters.winRateRSI } },
                     { "winRateStoRsiTrade", new { doubleValue = parameters.winRateStoRsiTrade } }
@@ -194,11 +204,16 @@ public class FireStore : MonoBehaviour
                             stochasticD = fields.stochasticD.integerValue,
                             stochasticStrength = fields.stochasticStrength.integerValue,
 
+                            stochasticSellK = fields.stochasticSellK != null ? fields.stochasticSellK.integerValue : fields.stochasticK.integerValue,
+                            stochasticSellStrength = fields.stochasticSellStrength != null ? fields.stochasticSellStrength.integerValue : fields.stochasticStrength.integerValue,
+
                             rsiStrength = fields.rsiStrength.integerValue,
+                            rsiSellStrength = fields.rsiSellStrength != null ? fields.rsiSellStrength.integerValue : fields.rsiStrength.integerValue,
 
                             tradePriceEMALength = fields.tradePriceEMALength.integerValue,
                             tradePriceConditionMul = fields.tradePriceConditionMul.doubleValue,
-                            
+                            tradeSellPriceConditionMul = fields.tradeSellPriceConditionMul != null ? fields.tradeSellPriceConditionMul.doubleValue : fields.tradePriceConditionMul.doubleValue,
+
                             amountStochastic = fields.amountStochastic.doubleValue,
                             amountRSI = fields.amountRSI.doubleValue,
                             amountStoRsiTrade = fields.amountStoRsiTrade.doubleValue,
@@ -247,15 +262,25 @@ public class FirestoreDocument
 public class FirestoreFields
 {
     public FirestoreValue name { get; set; }
+
     public FirestoreValue stochasticK { get; set; }
     public FirestoreValue stochasticD { get; set; }
     public FirestoreValue stochasticStrength { get; set; }
+
+    public FirestoreValue stochasticSellK { get; set; }
+    public FirestoreValue stochasticSellStrength { get; set; }
+
     public FirestoreValue rsiStrength { get; set; }
+    public FirestoreValue rsiSellStrength { get; set; }
+
     public FirestoreValue tradePriceEMALength { get; set; }
     public FirestoreValue tradePriceConditionMul { get; set; }
+    public FirestoreValue tradeSellPriceConditionMul { get; set; }
+
     public FirestoreValue amountStochastic { get; set; }
     public FirestoreValue amountRSI { get; set; }
     public FirestoreValue amountStoRsiTrade { get; set; }
+
     public FirestoreValue winRateStochastic { get; set; }
     public FirestoreValue winRateRSI { get; set; }
     public FirestoreValue winRateStoRsiTrade { get; set; }
