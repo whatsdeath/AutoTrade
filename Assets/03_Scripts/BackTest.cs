@@ -85,7 +85,7 @@ public static class BackTest
                 tradeCount++;
             }
         }
-        Debug.Log($"MA1 = {power1}, MA2 = {power2} // ({buyCondition}/{sellCondition}/{RSIpower}) °Å·¡È½¼ö : {tradeCount}, ¼º°ø·ü : {1 - (failCount / tradeCount)}, ±Ý¾× : {(money + (buyPrice * buyUnitCount)).ToString("#,###")}");
+        DebugByPlatform.Debug.LogOnlyEditer($"MA1 = {power1}, MA2 = {power2} // ({buyCondition}/{sellCondition}/{RSIpower}) °Å·¡È½¼ö : {tradeCount}, ¼º°ø·ü : {1 - (failCount / tradeCount)}, ±Ý¾× : {(money + (buyPrice * buyUnitCount)).ToString("#,###")}");
 
         return money + (buyPrice * buyUnitCount);
     }
@@ -186,7 +186,7 @@ public static class BackTest
             }
         }
 
-        Debug.Log($"MA1 = {power1}, MA2 = {power2} // »ó½Â({upbuy}/{upsell}/{upRSIpower}) // ÇÏ¶ô({downbuy}/{downsell}/{downRSIpower}) °Å·¡È½¼ö : {tradeCount}, ¼º°ø·ü : {1 - (failCount / tradeCount)}, ±Ý¾× : {(money + (buyPrice * buyUnitCount)).ToString("#,###")}");
+        DebugByPlatform.Debug.LogOnlyEditer($"MA1 = {power1}, MA2 = {power2} // »ó½Â({upbuy}/{upsell}/{upRSIpower}) // ÇÏ¶ô({downbuy}/{downsell}/{downRSIpower}) °Å·¡È½¼ö : {tradeCount}, ¼º°ø·ü : {1 - (failCount / tradeCount)}, ±Ý¾× : {(money + (buyPrice * buyUnitCount)).ToString("#,###")}");
 
         return money + (buyPrice * buyUnitCount);
     }
@@ -259,7 +259,7 @@ public static class BackTest
                 tradeCount++;
             }
         }
-        Debug.Log($"MA1 = {power1}, MA2 = {power2} // °Å·¡È½¼ö : {tradeCount}, ¼º°ø·ü : {1 - (failCount / tradeCount)}, ±Ý¾× : {(money + (buyPrice * buyUnitCount)).ToString("#,###")}");
+        DebugByPlatform.Debug.LogOnlyEditer($"MA1 = {power1}, MA2 = {power2} // °Å·¡È½¼ö : {tradeCount}, ¼º°ø·ü : {1 - (failCount / tradeCount)}, ±Ý¾× : {(money + (buyPrice * buyUnitCount)).ToString("#,###")}");
 
         return money + (buyPrice * buyUnitCount);
     }
@@ -448,7 +448,7 @@ public static class BackTest
             }
         }
 
-        Debug.Log($"MA1 = {power1}, MA2 = {power2} // »ó½Â({upbuy}/{upbuypower}//{upsell}/{upsellpower}) // ÇÏ¶ô({downbuy}/{downbuypower}//{downsell}/{downsellpower}) °Å·¡È½¼ö : {tradeCount}, ¼º°ø·ü : {1 - (failCount / tradeCount)}, ±Ý¾× : {(money + (buyPrice * buyUnitCount)).ToString("#,###")}");
+        DebugByPlatform.Debug.LogOnlyEditer($"MA1 = {power1}, MA2 = {power2} // »ó½Â({upbuy}/{upbuypower}//{upsell}/{upsellpower}) // ÇÏ¶ô({downbuy}/{downbuypower}//{downsell}/{downsellpower}) °Å·¡È½¼ö : {tradeCount}, ¼º°ø·ü : {1 - (failCount / tradeCount)}, ±Ý¾× : {(money + (buyPrice * buyUnitCount)).ToString("#,###")}");
 
         return money + (buyPrice * buyUnitCount);
     }

@@ -33,7 +33,7 @@ namespace DebugByPlatform
 
         public static void LogOnlyEditer(object message)
         {
-#if UNITY_EDITOR
+#if UNITY_EDITOR && false
             LogByEditer(message);
 #endif
         }

@@ -50,7 +50,6 @@ public class AppManager : BaseManager<AppManager>
         var host = Dns.GetHostEntry(Dns.GetHostName());
         foreach (var ip in host.AddressList)
         {
-            Debug.Log($"{ip} ::: {ip.AddressFamily}");
             if (ip.AddressFamily == AddressFamily.InterNetwork)
             {
                 return ip.ToString();                

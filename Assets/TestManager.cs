@@ -15,7 +15,7 @@ public class TestManager : BaseManager<TestManager>
 
     public List<CandlesParameters> parameters = new List<CandlesParameters>();
 
-    private MarketList currentTestMarket = MarketList.BLUR;
+    private MarketList currentTestMarket = MarketList.GAS;
 
     bool isCurrentTestEnd = true;
     bool isTestMode
@@ -318,7 +318,7 @@ public class TestManager : BaseManager<TestManager>
                                 sellpowera = sellpower;
                                 //macdSignalPerioda = macdSignal;
                             }
-                            Debug.Log($"{count} / {counta} ::: {aa} / {winRate} / {k} / {d} / {power} // {sellk} / {sellpower}");
+                            DebugByPlatform.Debug.LogOnlyEditer($"{count} / {counta} ::: {aa} / {winRate} / {k} / {d} / {power} // {sellk} / {sellpower}");
                             yield return null;
                         }
                     }
@@ -413,7 +413,7 @@ public class TestManager : BaseManager<TestManager>
             }
         }
 
-        Debug.Log($"최종액수 {money} 거래횟수 : {tradeCount}, 성공률 : {1 - (failCount / tradeCount)}, 금액 : {(money + (buyPrice * buyUnitCount)).ToString("#,###")}");
+        DebugByPlatform.Debug.LogOnlyEditer($"최종액수 {money} 거래횟수 : {tradeCount}, 성공률 : {1 - (failCount / tradeCount)}, 금액 : {(money + (buyPrice * buyUnitCount)).ToString("#,###")}");
 
 
         winRate = 1 - (failCount / tradeCount);
@@ -499,7 +499,7 @@ public class TestManager : BaseManager<TestManager>
                     rsiLengtha = rsiLength;
                     rsisellLengtha = rsiSellLength;
                 }
-                Debug.Log($"{count} / {counta} ::: {aa} / {winRate} // {rsiLength} / {rsiSellLength}");
+                DebugByPlatform.Debug.LogOnlyEditer($"{count} / {counta} ::: {aa} / {winRate} // {rsiLength} / {rsiSellLength}");
                 yield return null;
             }
         }
@@ -580,7 +580,7 @@ public class TestManager : BaseManager<TestManager>
             }
         }
 
-        Debug.Log($"최종액수 {money} 거래횟수 : {tradeCount}, 성공률 : {1 - (failCount / tradeCount)}, 금액 : {(money + (buyPrice * buyUnitCount)).ToString("#,###")}");
+        DebugByPlatform.Debug.LogOnlyEditer($"최종액수 {money} 거래횟수 : {tradeCount}, 성공률 : {1 - (failCount / tradeCount)}, 금액 : {(money + (buyPrice * buyUnitCount)).ToString("#,###")}");
 
 
         winRate = 1 - (failCount / tradeCount);
@@ -670,7 +670,7 @@ public class TestManager : BaseManager<TestManager>
                         multia = multi;
                         sellmultia = sellMulti;
                     }
-                    Debug.Log($"{count} / {counta} ::: {aa} / {winRate} // {multi} / {sellMulti}");
+                    DebugByPlatform.Debug.LogOnlyEditer($"{count} / {counta} ::: {aa} / {winRate} // {multi} / {sellMulti}");
                     yield return null;
                 }
             }
@@ -798,7 +798,7 @@ public class TestManager : BaseManager<TestManager>
             }
         }
 
-        Debug.Log($"최종액수 {money} 거래횟수 : {tradeCount}, 성공률 : {1 - (failCount / tradeCount)}, 금액 : {(money + (buyPrice * buyUnitCount)).ToString("#,###")}");
+        DebugByPlatform.Debug.LogOnlyEditer($"최종액수 {money} 거래횟수 : {tradeCount}, 성공률 : {1 - (failCount / tradeCount)}, 금액 : {(money + (buyPrice * buyUnitCount)).ToString("#,###")}");
 
 
         winRate = 1 - (failCount / tradeCount);
@@ -930,7 +930,7 @@ public class TestManager : BaseManager<TestManager>
 
                         count++;
 
-                        Debug.Log($"데이터 생성중 :: {count} / {counta} = {stochasticKValues[k][d][power][parameters[2]]} / {stochasticDValues[k][d][power][parameters[2]]} ");
+                        DebugByPlatform.Debug.LogOnlyEditer($"데이터 생성중 :: {count} / {counta} = {stochasticKValues[k][d][power][parameters[2]]} / {stochasticDValues[k][d][power][parameters[2]]} ");
                         yield return null;
                     }
                 }
@@ -960,7 +960,7 @@ public class TestManager : BaseManager<TestManager>
 
                 rsiValues.Add(rsiPower, new Dictionary<CandlesParameters, float>(rsiValueDic));
                 count++;
-                Debug.Log($"데이터 생성중 :: {count} / {counta} = {rsiValues[rsiPower][parameters[2]]}");
+                DebugByPlatform.Debug.LogOnlyEditer($"데이터 생성중 :: {count} / {counta} = {rsiValues[rsiPower][parameters[2]]}");
                 yield return null;
             }
         }
@@ -997,7 +997,7 @@ public class TestManager : BaseManager<TestManager>
                         macdSignalValues[macdShort][macdLong].Add(macdSignal, new Dictionary<CandlesParameters, double>(signalLineDic));
 
                         count++;
-                        Debug.Log($"데이터 생성중 :: {count} / {counta} = {macdMACDValues[macdShort][macdLong][macdSignal][parameters[2]]} / {macdSignalValues[macdShort][macdLong][macdSignal][parameters[2]]}");
+                        DebugByPlatform.Debug.LogOnlyEditer($"데이터 생성중 :: {count} / {counta} = {macdMACDValues[macdShort][macdLong][macdSignal][parameters[2]]} / {macdSignalValues[macdShort][macdLong][macdSignal][parameters[2]]}");
 
                         yield return null;
                     }

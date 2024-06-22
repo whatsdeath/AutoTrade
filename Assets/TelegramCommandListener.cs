@@ -131,7 +131,7 @@ public class TelegramCommandListener : MonoBehaviour
             if (result.message != null)
             {
                 lastUpdateId[(int)botType] = result.update_id; // 마지막 업데이트 ID 갱신
-                Debug.Log($"botType = {botType} / lastUpdateId = {lastUpdateId[(int)botType]} / length = {result.message.text.Length} / result.message.text = {result.message.text}");
+                DebugByPlatform.Debug.LogOnlyEditer($"botType = {botType} / lastUpdateId = {lastUpdateId[(int)botType]} / length = {result.message.text.Length} / result.message.text = {result.message.text}");
 
                 ExecuteProgramFunction(result.message.text, botType);
             }

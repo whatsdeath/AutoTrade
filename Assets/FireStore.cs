@@ -152,7 +152,7 @@ public class FireStore : MonoBehaviour
 
             if (response.IsSuccessStatusCode)
             {
-                Debug.Log($"Document {market} successfully written: " + responseBody);
+                DebugByPlatform.Debug.LogOnlyEditer($"Document {market} successfully written: " + responseBody);
                 AppManager.Instance.TelegramMassage($"[KRW-{market}] 마켓의 정보가 성공적으로 저장되었습니다.", TelegramBotType.DebugLog);
             }
             else
@@ -185,8 +185,6 @@ public class FireStore : MonoBehaviour
 
             if (response.IsSuccessStatusCode)
             {
-                Debug.Log("Documents data: " + responseBody);
-
                 // JSON 문자열을 명시적으로 파싱
                 var documents = JsonConvert.DeserializeObject<FirestoreDocuments>(responseBody);
 

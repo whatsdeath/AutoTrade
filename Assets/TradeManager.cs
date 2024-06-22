@@ -64,11 +64,37 @@ public class TradeManager : BaseManager<TradeManager>
             AppManager.Instance.TelegramMassage($"마켓 데이터 수가 부족합니다. 확인을 요망합니다. 마켓 ::: {(int)MarketList.MaxCount} // 데이터 ::: {_conditionByMarket}", TelegramBotType.DebugLog);
         }
 
-        if (!_conditionByMarket.ContainsKey(MarketList.SNT))
+        if (!_conditionByMarket.ContainsKey(MarketList.MTL))
         {
-            _conditionByMarket.Add(MarketList.SNT, new TradingParameters {
+            _conditionByMarket.Add(MarketList.MTL, new TradingParameters {
 
-                name = MarketList.SNT.ToString(),
+                name = MarketList.MTL.ToString(),
+
+                stochasticK = 6,
+                stochasticD = 6,
+                stochasticStrength = 10,
+
+                rsiStrength = 15,
+
+                tradePriceEMALength = 30,
+                tradePriceConditionMul = 2.0f,
+
+                amountStochastic = 0,
+                amountRSI = 0,
+                amountStoRsiTrade = 0,
+
+                winRateStochastic = 0.0f,
+                winRateRSI = 0.0f,
+                winRateStoRsiTrade = 0.0f
+            });
+        }
+
+        if (!_conditionByMarket.ContainsKey(MarketList.GAS))
+        {
+            _conditionByMarket.Add(MarketList.GAS, new TradingParameters
+            {
+
+                name = MarketList.GAS.ToString(),
 
                 stochasticK = 6,
                 stochasticD = 6,
@@ -180,17 +206,17 @@ public class TradeManager : BaseManager<TradeManager>
             return;
         }
         
-        if (balanceKRW / (int)MarketList.MaxCount >= 5000.0f)
+        if (balanceKRW >= 5000.0f)
         {
             double price;
 
-            if(balanceKRW < myProperty / 5.0f)
+            if(balanceKRW < myProperty / 6.0f)
             {
                 price = balanceKRW - 5000;
             }
             else
             {
-                price = myProperty / 5.0f;
+                price = myProperty / 6.0f;
             }
 
             AppManager.Instance.TelegramMassage($"<i>[{TimeManager.Instance.nowTime}]</i>\n<b>[구매시도] <u>{market}[{conditionByMarket[market].tradeTerms}] : {myProperty.ToString("#,###")}KRW</u></b>\nUnitPrice : {unitPrice.ToString("#,##0.0####")}\nOrderBalance : {price.ToString("#,###")}", TelegramBotType.Trade);

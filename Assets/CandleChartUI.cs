@@ -47,8 +47,6 @@ public class CandleChartUI : MonoBehaviour
             }
         }
 
-        Debug.Log(minPrice + ", " + maxPrice +  "     " + rectTransform.rect.height);
-
         candleBar.VisualizationCandle(parameters[0], maxPrice, minPrice, chartHeight);
     }
 

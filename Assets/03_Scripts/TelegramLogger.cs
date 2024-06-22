@@ -29,7 +29,7 @@ public class TelegramLogger : MonoBehaviour
             string url = $"https://api.telegram.org/bot{botTokens[(int)type]}/sendMessage?chat_id={ChatId}&text={Uri.EscapeDataString(message)}&parse_mode=html";
             HttpResponseMessage response = await client.GetAsync(url);
             response.EnsureSuccessStatusCode();
-            Debug.Log("Message sent to Telegram successfully.");
+            DebugByPlatform.Debug.LogOnlyEditer("Message sent to Telegram successfully.");
         }
         catch (Exception ex)
         {

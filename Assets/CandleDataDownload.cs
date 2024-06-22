@@ -135,15 +135,12 @@ public class CandleDataDownload : BaseWebRequest<CandlesParameters>
 
         lastTime = Convert.ToDateTime(_candleListDic[market][_candleListDic[market].Count - 1].candle_date_time_utc);
 
-        Debug.Log(lastTime + "   " + _candleListDic[market].Count);
+        DebugByPlatform.Debug.LogOnlyEditer(lastTime + "   " + _candleListDic[market].Count);
 
         if(_candleListDic[market].Count >= GlobalValue.SAVE_DATA_MAX_COUNT)
         {
             StopCoroutine(candleSearchLoop);
 
-            //CreateScriptableObject.DataSet(name, _candleListDic[name]);
-
-            Debug.Log("종료");
             TestManager.Instance.DataSaveAndTestStart(market, _candleListDic[market]);
         }
 
@@ -154,9 +151,6 @@ public class CandleDataDownload : BaseWebRequest<CandlesParameters>
     {
         StopCoroutine(candleSearchLoop);
 
-        //CreateScriptableObject.DataSet(name, _candleListDic[name]);
-
-        Debug.Log("종료");
         TestManager.Instance.DataSaveAndTestStart(market, _candleListDic[market]);
 
         isNextSearchReady = true;
