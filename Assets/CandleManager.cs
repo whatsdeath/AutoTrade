@@ -8,7 +8,7 @@ public enum MarketList
 {
     WAVES, FLOW, ARB, SUI, MATIC, ARK, LINK, STX, SHIB, SEI,
     CHZ, DOGE, KNC, BLUR, PYTH, POLYX, ONG, NEAR, GLM, SOL, MLK, ELF, SNT, 
-    GAS, MTL, MaxCount
+    GAS, MTL, MaxCount, Test
 }
 
 public class CandleManager : BaseManager<CandleManager>
@@ -140,6 +140,6 @@ public class CandleManager : BaseManager<CandleManager>
         }
 
         TradeManager.Instance.SetTradeReady(true);
-        Debug.Log("준비완료");
+        DebugByPlatform.Debug.Log("준비완료");
     }
 }

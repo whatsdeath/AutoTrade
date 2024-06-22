@@ -1,3 +1,4 @@
+using Google.Cloud.Firestore;
 using Newtonsoft.Json.Bson;
 using System;
 using System.Collections;
@@ -64,55 +65,45 @@ public class TradeManager : BaseManager<TradeManager>
             AppManager.Instance.TelegramMassage($"마켓 데이터 수가 부족합니다. 확인을 요망합니다. 마켓 ::: {(int)MarketList.MaxCount} // 데이터 ::: {_conditionByMarket}", TelegramBotType.DebugLog);
         }
 
-        if (!_conditionByMarket.ContainsKey(MarketList.MTL))
+        DateTime minTimeStamp = new DateTime();
+        minTimeStamp = TimeManager.Instance.nowTime.ToUniversalTime();//Timestamp.FromDateTime(TimeManager.Instance.nowTime.ToUniversalTime());
+
+        for (int i = 0; i < (int)MarketList.MaxCount; i++)
         {
-            _conditionByMarket.Add(MarketList.MTL, new TradingParameters {
+            MarketList market = (MarketList)i;
 
-                name = MarketList.MTL.ToString(),
-
-                stochasticK = 6,
-                stochasticD = 6,
-                stochasticStrength = 10,
-
-                rsiStrength = 15,
-
-                tradePriceEMALength = 30,
-                tradePriceConditionMul = 2.0f,
-
-                amountStochastic = 0,
-                amountRSI = 0,
-                amountStoRsiTrade = 0,
-
-                winRateStochastic = 0.0f,
-                winRateRSI = 0.0f,
-                winRateStoRsiTrade = 0.0f
-            });
-        }
-
-        if (!_conditionByMarket.ContainsKey(MarketList.GAS))
-        {
-            _conditionByMarket.Add(MarketList.GAS, new TradingParameters
+            if (!_conditionByMarket.ContainsKey(market))
             {
+                _conditionByMarket.Add(market, new TradingParameters
+                {
+                    name = market.ToString(),
 
-                name = MarketList.GAS.ToString(),
+                    stochasticK = 6,
+                    stochasticD = 6,
+                    stochasticStrength = 10,
 
-                stochasticK = 6,
-                stochasticD = 6,
-                stochasticStrength = 10,
+                    rsiStrength = 15,
 
-                rsiStrength = 15,
+                    tradePriceEMALength = 30,
+                    tradePriceConditionMul = 2.0f,
 
-                tradePriceEMALength = 30,
-                tradePriceConditionMul = 2.0f,
+                    amountStochastic = 0,
+                    amountRSI = 0,
+                    amountStoRsiTrade = 0,
 
-                amountStochastic = 0,
-                amountRSI = 0,
-                amountStoRsiTrade = 0,
+                    winRateStochastic = 0.0f,
+                    winRateRSI = 0.0f,
+                    winRateStoRsiTrade = 0.0f,
+                    
+                    lastUpdate = new DateTime()
+                });
+            }
 
-                winRateStochastic = 0.0f,
-                winRateRSI = 0.0f,
-                winRateStoRsiTrade = 0.0f
-            });
+            if (_conditionByMarket[market].lastUpdate < minTimeStamp)
+            {
+                minTimeStamp = _conditionByMarket[market].lastUpdate;
+                TestManager.Instance.currentTestMarket = market;
+            }
         }
     }
 

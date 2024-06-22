@@ -42,6 +42,8 @@ public class TradingParameters
     public float winRateRSI = 0;
     public float winRateStoRsiTrade = 0;
 
+    public DateTime lastUpdate = new DateTime();
+
     public TradeTerms tradeTerms { get => CalcTradeTerms(); }
 
     public TradingParameters() { }
@@ -70,6 +72,8 @@ public class TradingParameters
         winRateStochastic = other.winRateStochastic;
         winRateRSI = other.winRateRSI;
         winRateStoRsiTrade = other.winRateStoRsiTrade;
+
+        lastUpdate = other.lastUpdate;
     }
 
     private TradeTerms CalcTradeTerms()

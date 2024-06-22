@@ -1,3 +1,4 @@
+using Google.Cloud.Firestore;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -15,7 +16,7 @@ public class TestManager : BaseManager<TestManager>
 
     public List<CandlesParameters> parameters = new List<CandlesParameters>();
 
-    private MarketList currentTestMarket = MarketList.GAS;
+    public MarketList currentTestMarket = MarketList.GAS;
 
     bool isCurrentTestEnd = true;
     bool isTestMode

@@ -1,5 +1,6 @@
 using Google.Apis.Auth.OAuth2;
 using Google.Cloud.Firestore;
+using Google.Type;
 using Grpc.Core;
 using Newtonsoft.Json;
 using System;
@@ -7,8 +8,11 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.UIElements;
+using DateTime = System.DateTime;
 
 public class FireStore : MonoBehaviour
 {
@@ -25,6 +29,7 @@ public class FireStore : MonoBehaviour
 
     void Start()
     {
+        NextCertificationTime = Time.realtimeSinceStartup + ReCertificationInterval;
         // Initialize Firestore
         AuthenticateWithGoogle();
     }
@@ -57,13 +62,14 @@ public class FireStore : MonoBehaviour
             OnCertification();
         }
 
-        NextCertificationTime = Time.realtimeSinceStartup + ReCertificationInterval;
+        NextCertificationTime += ReCertificationInterval;
     }
 
     private void OnCertification()
     {
         isCertification = true;
         TradeManager.Instance.SetConditionByMarket(GetTradingParameters());
+        //AddOrUpdateTradingParameter(MarketList.Test, new TradingParameters());
         /*
             AppManager.Instance.SaveData(MarketList.POLYX, new TradingParameters
             {
@@ -188,6 +194,7 @@ public class FireStore : MonoBehaviour
                 // JSON 문자열을 명시적으로 파싱
                 var documents = JsonConvert.DeserializeObject<FirestoreDocuments>(responseBody);
 
+
                 if (documents.documents != null)
                 {
                     foreach (var document in documents.documents)
@@ -218,8 +225,12 @@ public class FireStore : MonoBehaviour
 
                             winRateStochastic = fields.winRateStochastic.doubleValue,
                             winRateRSI = fields.winRateRSI.doubleValue,
-                            winRateStoRsiTrade = fields.winRateStoRsiTrade.doubleValue
+                            winRateStoRsiTrade = fields.winRateStoRsiTrade.doubleValue,
+
+                            lastUpdate = !string.IsNullOrEmpty(document.updateTime) ? DateTime.Parse(document.updateTime) : new DateTime()
                         };
+
+                        Debug.Log($"{parameters.name} ::: LastUpdate ({parameters.lastUpdate})");
 
                         string documentName = document.name;
                         string[] nameParts = documentName.Split('/');
@@ -255,6 +266,8 @@ public class FirestoreDocument
 {
     public string name { get; set; }
     public FirestoreFields fields { get; set; }
+
+    public string updateTime { get; set; }
 }
 
 public class FirestoreFields
@@ -289,4 +302,5 @@ public class FirestoreValue
     public string stringValue { get; set; }
     public int integerValue { get; set; }
     public float doubleValue { get; set; }
+    public DateTime timestampValue { get; set; }
 }
