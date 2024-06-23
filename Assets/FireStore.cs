@@ -31,7 +31,7 @@ public class FireStore : MonoBehaviour
     {
         NextCertificationTime = Time.realtimeSinceStartup + ReCertificationInterval;
         // Initialize Firestore
-        AuthenticateWithGoogle();
+        AuthenticateWithGoogleAsync();
     }
     
     private void FixedUpdate()
@@ -39,11 +39,11 @@ public class FireStore : MonoBehaviour
         //ReCertificationInterval 시간마다 자동갱신
         if (Time.realtimeSinceStartup >= NextCertificationTime)
         {
-            AuthenticateWithGoogle();
+            AuthenticateWithGoogleAsync();
         }
     }
 
-    private async void AuthenticateWithGoogle()
+    private async void AuthenticateWithGoogleAsync()
     {
         string jsonPath = Application.dataPath + "/GoogleCloud.Json";
         string[] scopes = { "https://www.googleapis.com/auth/datastore" };
@@ -63,6 +63,21 @@ public class FireStore : MonoBehaviour
         }
 
         NextCertificationTime += ReCertificationInterval;
+    }
+
+    private void AuthenticateWithGoogle()
+    {
+        string jsonPath = Application.dataPath + "/GoogleCloud.Json";
+        string[] scopes = { "https://www.googleapis.com/auth/datastore" };
+
+        // Load the service account key file
+        var googleCredential = GoogleCredential.FromFile(jsonPath).CreateScoped(scopes);
+
+        // Request an access token
+        var tokenResponse = googleCredential.UnderlyingCredential.GetAccessTokenForRequestAsync().GetAwaiter().GetResult();
+        firebaseToken = tokenResponse;
+
+        Debug.Log("Authenticated with Google, token: " + firebaseToken);
     }
 
     private void OnCertification()
@@ -165,6 +180,9 @@ public class FireStore : MonoBehaviour
             {
                 Debug.LogError($"Error writing document {market}: " + responseBody);
                 AppManager.Instance.TelegramMassage($"[KRW-{market}] 마켓의 정보 저장이 실패하였습니다. : {responseBody}", TelegramBotType.DebugLog);
+
+                AuthenticateWithGoogle();
+                AddOrUpdateTradingParameter(market, new TradingParameters(parameters));
             }
         }
         catch (Exception e)
