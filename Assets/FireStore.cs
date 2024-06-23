@@ -188,7 +188,10 @@ public class FireStore : MonoBehaviour
         catch (Exception e)
         {
             Debug.LogError($"Exception writing document {market}: {e.Message}");
-            AppManager.Instance.TelegramMassage($"[KRW-{market}] 마켓의 정보 저장이 실패하였습니다. : {e.Message}", TelegramBotType.DebugLog);
+            AppManager.Instance.TelegramMassage($"[KRW-{market}] 마켓의 정보 저장이 실패하였습니다... : {e.Message}", TelegramBotType.DebugLog);
+
+            AuthenticateWithGoogle();
+            AddOrUpdateTradingParameter(market, new TradingParameters(parameters));
         }
     }
 
