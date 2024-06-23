@@ -16,6 +16,9 @@ public class TestManager : BaseManager<TestManager>
 
     public List<CandlesParameters> parameters = new List<CandlesParameters>();
 
+    public const double _testMoney = 3000000;
+    public double testMoney { get => _testMoney; }
+
     public MarketList currentTestMarket = MarketList.GAS;
 
     bool isCurrentTestEnd = true;
@@ -203,11 +206,11 @@ public class TestManager : BaseManager<TestManager>
     }
 
     bool isRetest;
-    public void TestComplete()
+    public void TestComplete(string market)
     {
         string massege = $"{AppManager.Instance.machineName}({AppManager.Instance.ip})\n[{TimeManager.Instance.nowTime}]\n";
 
-        massege += $"<b>{currentTestMarketName}의 테스트가 완료되었습니다.</b>";
+        massege += $"<b>{market}의 테스트가 완료되었습니다.</b>";
         AppManager.Instance.TelegramMassage(massege, TelegramBotType.BackTest);
         isCurrentTestEnd = true;
 
@@ -226,7 +229,7 @@ public class TestManager : BaseManager<TestManager>
     #endregion
 
 
-    double money = 3000000;
+    double money = _testMoney;
     double beforeMoney = 0;
 
     float tradeCount = 0;
@@ -355,7 +358,7 @@ public class TestManager : BaseManager<TestManager>
     private double BacktestStochastic(out float winRate, int stochasticK, int stochasticD, int stochasticPeriod, int stochasticSellK, int stochasticSellPeriod) // 2% 손절
     {
         //자금계산을 위한 변수모음
-        money = 3000000;
+        money = testMoney;
         beforeMoney = 0;
 
         tradeCount = 0;
@@ -526,7 +529,7 @@ public class TestManager : BaseManager<TestManager>
     private double BacktestRSI(out float winRate, int rsiPeriod, int rsiSellPeriod)
     {
         //자금계산을 위한 변수모음
-        money = 3000000;
+        money = testMoney;
         beforeMoney = 0;
 
         tradeCount = 0;
@@ -701,7 +704,7 @@ public class TestManager : BaseManager<TestManager>
         }
         TradeManager.Instance.SetConditionByMarket(currentTestMarket, tradingParameters);
 
-        TestComplete();
+        TestComplete(tradingParameters.name);
     }
 
 
@@ -710,7 +713,7 @@ public class TestManager : BaseManager<TestManager>
     private double BacktestFinal(out float winRate, int stochasticK, int stochasticD, int stochasticPeriod, int stochasticSellK, int stochasticSellPeriod, int rsiPeriod, int rsiSellPeriod, int tradePriceLength, float multi, float multiSell)
     {
         //자금계산을 위한 변수모음
-        money = 3000000;
+        money = testMoney;
         beforeMoney = 0;
 
         tradeCount = 0;

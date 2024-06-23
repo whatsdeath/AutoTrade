@@ -160,6 +160,12 @@ public class Trade : MonoBehaviour
         DebugByPlatform.Debug.LogOnlyEditer($"구매조건을 탐색합니다. : {market}[{conditionByMarket[market].tradeTerms}] ::: TradePrice : {datas[1].trade_price} // {k.ToString("##0.0")}/{d.ToString("##0.0")}(20.0) // {rsi.ToString("##0.0#")}(30) // {(datas[1].candle_acc_trade_price / tradePriceEMA).ToString("##0.00")}({multi})");
 
         int score = 0;
+        //이득 못볼 것 같은 종목은 거래하지 말자.
+        //1달이면 5%는 챙겨야지.
+        if (!ChkTradeSimulationResult(conditionByMarket[market], 1.05f))
+        {
+            return;
+        }
 
         if (ChkBuyConditionStochastic(k, d))
         {
@@ -238,6 +244,15 @@ public class Trade : MonoBehaviour
 
         int score = 0;
 
+        //본전도 못찾는 종목은 일단 비우고 이득각이 보일때까지 거래 보류하자.
+        //자칫 계속 사고팔 수 있으므로 사는 가격에 비해 리미트를 낮게 책정
+        if (!ChkTradeSimulationResult(conditionByMarket[market], 1.01f))
+        {
+            TradeManager.Instance.SellOrder(market, datas[0].trade_price);
+            return;
+        }
+
+
         if (ChkSellConditionStochastic(k))
         {
             score++;
@@ -306,67 +321,24 @@ public class Trade : MonoBehaviour
         return false;
     }
 
-}
-
-
-[Serializable]
-public class MarketData
-{
-    public string market;
-    public double losscut;
-    public double profitcut;
-
-    int stochasticK;
-    int stochasticD;
-    int stochasticPower;
-    int rsiPower;
-
-    float overBuy;
-    float overSell;
-
-    float guideRsi;
-
-    int macdShort;
-    int macdLong;
-    int macdSignal;
-
-
-
-    float profitRate;
-
-    // 추가 필드 선언
-
-    public MarketData(string market, double losscut, double profitcut /* 추가 필드 */)
+    private bool ChkTradeSimulationResult(TradingParameters parameters, float limit)
     {
-        this.market = market;
-        this.losscut = losscut;
-        this.profitcut = profitcut;
-        // 추가 필드 초기화
-    }
-}
-
-public class DataManager
-{
-    public void SaveMarketData()
-    {
-
-    }
-
-    public void SaveData(MarketData[] data, string filePath)
-    {
-        BinaryFormatter formatter = new BinaryFormatter();
-        using (FileStream fileStream = new FileStream(filePath, FileMode.Create))
+        //이득이 아닌 종목은 일단 비우고 이득각이 보일때까지 거래 보류하자.
+        switch (parameters.tradeTerms)
         {
-            formatter.Serialize(fileStream, data);
-        }
-    }
+            case TradeTerms.Stochastic:
+                return parameters.amountStochastic > TestManager.Instance.testMoney * limit;
 
-    public MarketData[] LoadData(string filePath)
-    {
-        BinaryFormatter formatter = new BinaryFormatter();
-        using (FileStream fileStream = new FileStream(filePath, FileMode.Open))
-        {
-            return (MarketData[])formatter.Deserialize(fileStream);
+            case TradeTerms.RSI:
+                return parameters.amountRSI > TestManager.Instance.testMoney * limit;
+
+            case TradeTerms.StoRsiTrade:
+                return parameters.amountStoRsiTrade > TestManager.Instance.testMoney * limit;
+
+            default:
+                return false;
         }
     }
 }
+
+
