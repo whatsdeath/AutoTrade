@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/SampleScene.unity
+    path: Assets/01_Scenes/AutoTrade.unity
     guid: 8c9cfa26abfee488c85f1582747f6a02
+  - enabled: 1
+    path: Assets/01_Scenes/Restart.unity
+    guid: b20cdb377b839cb4db2a22497b1c7f1c
   m_configObjects: {}

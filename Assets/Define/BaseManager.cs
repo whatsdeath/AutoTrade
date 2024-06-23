@@ -53,6 +53,16 @@ public class BaseManager<TManager> : MonoBehaviour where TManager : MonoBehaviou
 
     protected virtual void Init() {}
 
+    public void Reset()
+    {
+        instance = null;
+    }
+
+    private void OnEnable()
+    {
+        instance = null;
+    }
+
     private void OnDestroy()
     {
         instance = null;

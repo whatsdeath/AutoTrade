@@ -1,17 +1,11 @@
 using Google.Apis.Auth.OAuth2;
-using Google.Cloud.Firestore;
-using Google.Type;
-using Grpc.Core;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
-using System.Threading.Tasks;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Networking;
-using UnityEngine.UIElements;
+using UnityEngine.SceneManagement;
 using DateTime = System.DateTime;
 
 public class FireStore : MonoBehaviour
@@ -40,7 +34,8 @@ public class FireStore : MonoBehaviour
         if (Time.realtimeSinceStartup >= NextCertificationTime)
         {
             AuthenticateWithGoogleAsync();
-        }
+            NextCertificationTime += ReCertificationInterval;
+        }   
     }
 
     private async void AuthenticateWithGoogleAsync()
@@ -61,44 +56,12 @@ public class FireStore : MonoBehaviour
         {
             OnCertification();
         }
-
-        NextCertificationTime += ReCertificationInterval;
-    }
-
-    private void AuthenticateWithGoogle()
-    {
-        string jsonPath = Application.dataPath + "/GoogleCloud.Json";
-        string[] scopes = { "https://www.googleapis.com/auth/datastore" };
-
-        // Load the service account key file
-        var googleCredential = GoogleCredential.FromFile(jsonPath).CreateScoped(scopes);
-
-        // Request an access token
-        var tokenResponse = googleCredential.UnderlyingCredential.GetAccessTokenForRequestAsync().GetAwaiter().GetResult();
-        firebaseToken = tokenResponse;
-
-        Debug.Log("Authenticated with Google, token: " + firebaseToken);
     }
 
     private void OnCertification()
     {
         isCertification = true;
         TradeManager.Instance.SetConditionByMarket(GetTradingParameters());
-        //AddOrUpdateTradingParameter(MarketList.Test, new TradingParameters());
-        /*
-            AppManager.Instance.SaveData(MarketList.POLYX, new TradingParameters
-            {
-                name = (MarketList.POLYX).ToString(),
-
-                stochasticK = 10,
-                stochasticD = 10,
-                stochasticStrength = 5,
-
-                rsiStrength = 18,
-
-                tradePriceEMALength = 36,
-                tradePriceConditionMul = 4.0f
-            });*/
     }
 
     public void ReloadConditionByMarkets()
@@ -175,23 +138,20 @@ public class FireStore : MonoBehaviour
             {
                 DebugByPlatform.Debug.LogOnlyEditer($"Document {market} successfully written: " + responseBody);
                 AppManager.Instance.TelegramMassage($"[KRW-{market}] 마켓의 정보가 성공적으로 저장되었습니다.", TelegramBotType.DebugLog);
+                TestManager.Instance.currentTestMarket++;
             }
             else
             {
                 Debug.LogError($"Error writing document {market}: " + responseBody);
                 AppManager.Instance.TelegramMassage($"[KRW-{market}] 마켓의 정보 저장이 실패하였습니다. : {responseBody}", TelegramBotType.DebugLog);
-
-                AuthenticateWithGoogle();
-                AddOrUpdateTradingParameter(market, new TradingParameters(parameters));
+                AuthenticateWithGoogleAsync();
             }
         }
         catch (Exception e)
         {
             Debug.LogError($"Exception writing document {market}: {e.Message}");
             AppManager.Instance.TelegramMassage($"[KRW-{market}] 마켓의 정보 저장이 실패하였습니다... : {e.Message}", TelegramBotType.DebugLog);
-
-            AuthenticateWithGoogle();
-            AddOrUpdateTradingParameter(market, new TradingParameters(parameters));
+            AuthenticateWithGoogleAsync();
         }
     }
 
@@ -265,13 +225,13 @@ public class FireStore : MonoBehaviour
             else
             {
                 Debug.LogError("Error getting documents: " + responseBody);
-                AppManager.Instance.TelegramMassage($"데이터가 로드가 실패하였습니다. : {responseBody}", TelegramBotType.DebugLog);
+                AppManager.Instance.TelegramMassage($"데이터가 로드가 실패하였습니다. : {responseBody}", TelegramBotType.Trade);
             }
         }
         catch (Exception e)
         {
             Debug.LogError($"Exception: {e.Message}");
-            AppManager.Instance.TelegramMassage($"데이터가 로드가 실패하였습니다. : {e.Message}", TelegramBotType.DebugLog);
+            AppManager.Instance.TelegramMassage($"데이터가 로드가 실패하였습니다. : {e.Message}", TelegramBotType.Trade);
         }
 
         return result;
