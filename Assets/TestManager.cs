@@ -708,7 +708,6 @@ public class TestManager : BaseManager<TestManager>
     }
 
 
-    int TradeSellPricePeriod = 0;
 
     private double BacktestFinal(out float winRate, int stochasticK, int stochasticD, int stochasticPeriod, int stochasticSellK, int stochasticSellPeriod, int rsiPeriod, int rsiSellPeriod, int tradePriceLength, float multi, float multiSell)
     {
