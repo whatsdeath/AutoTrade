@@ -201,13 +201,13 @@ public class TradeManager : BaseManager<TradeManager>
         {
             double price;
 
-            if(balanceKRW < myProperty / 6.0f)
+            if(balanceKRW < myProperty / 10.0f)
             {
                 price = balanceKRW - 5000;
             }
             else
             {
-                price = myProperty / 6.0f;
+                price = myProperty / 10.0f;
             }
 
             AppManager.Instance.TelegramMassage($"<i>[{TimeManager.Instance.nowTime}]</i>\n<b>[구매시도] <u>{market}[{conditionByMarket[market].tradeTerms}] : {myProperty.ToString("#,###")}KRW</u></b>\nUnitPrice : {unitPrice.ToString("#,##0.0####")}\nOrderBalance : {price.ToString("#,###")}", TelegramBotType.Trade);
