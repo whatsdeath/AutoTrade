@@ -221,6 +221,9 @@ public class TestManager : BaseManager<TestManager>
         macdSignalValues.Clear();
         tradePriceAvg.Clear();
 
+
+        currentTestMarket++;
+
         if (currentTestMarket.Equals(MarketList.MaxCount))
         {
             currentTestMarket = 0;
@@ -700,7 +703,8 @@ public class TestManager : BaseManager<TestManager>
 
         if (!isRetest)
         {
-            AppManager.Instance.SaveData(currentTestMarketName, tradingParameters);
+            MarketDataSave.Instance.SaveTradingParameter(tradingParameters);
+            //AppManager.Instance.SaveData(currentTestMarketName, tradingParameters);
         }
         TradeManager.Instance.SetConditionByMarket(currentTestMarket, tradingParameters);
 

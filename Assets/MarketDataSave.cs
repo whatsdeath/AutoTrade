@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
+using System;
 using UnityEngine;
 using Unity.VisualScripting;
 using System.Linq;
@@ -24,9 +25,68 @@ public class CandleData
     }
 }
 
+[System.Serializable]
+public class TradingParameterData
+{
+    public string name;
+
+    public int stochasticK;
+    public int stochasticD;
+    public int stochasticStrength;
+
+    public int stochasticSellK;
+    public int stochasticSellStrength   ;
+
+    public int rsiStrength;
+    public int rsiSellStrength;
+
+    public int tradePriceEMALength;
+    public float tradePriceConditionMul;
+    public float tradeSellPriceConditionMul;
+
+    public double amountStochastic;
+    public double amountRSI;
+    public double amountStoRsiTrade;
+
+    public float winRateStochastic;
+    public float winRateRSI;
+    public float winRateStoRsiTrade;
+
+    public DateTime lastUpdate;
+
+    public TradingParameterData(TradingParameters parameters)
+    {
+        name = parameters.name;
+
+        stochasticK = parameters.stochasticK;
+        stochasticD = parameters.stochasticD;
+        stochasticStrength = parameters.stochasticStrength;
+
+        stochasticSellK = parameters.stochasticSellK;
+        stochasticSellStrength = parameters.stochasticSellStrength;
+
+        rsiStrength = parameters.rsiStrength;
+        rsiSellStrength = parameters.rsiSellStrength;
+
+        tradePriceEMALength = parameters.tradePriceEMALength;
+        tradePriceConditionMul = parameters.tradePriceConditionMul;
+        tradeSellPriceConditionMul = parameters.tradeSellPriceConditionMul;
+
+        amountStochastic = parameters.amountStochastic;
+        amountRSI = parameters.amountRSI;
+        amountStoRsiTrade = parameters.amountStoRsiTrade;
+
+        winRateStochastic = parameters.winRateStochastic;
+        winRateRSI = parameters.winRateRSI;
+        winRateStoRsiTrade = parameters.winRateStoRsiTrade;
+
+        lastUpdate = TimeManager.Instance.nowTime;
+    }
+}
+
 
 [System.Serializable]
-public class MarketDataSave : MonoBehaviour
+public class MarketDataSave : BaseManager<MarketDataSave>
 {
     [System.Serializable]
     public class CandleDataList
@@ -98,12 +158,36 @@ public class MarketDataSave : MonoBehaviour
 
     }
 
+    public void SaveTradingParameter(TradingParameters parameters)
+    {
+        BinarySerialize(new TradingParameterData(parameters), parameters.name);
+    }
+
+    public TradingParameters LoadTradingParameter(string name)
+    {
+        try
+        {
+            return new TradingParameters(BinaryDeserialize<TradingParameterData>(name));
+        }
+        catch (Exception e) 
+        { 
+            Debug.LogException(e);
+            return null;
+        }
+    }
 
     //세이브
     public void BinarySerialize<T>(T t, string fileName)
     {
+        var directoryPath = $"{Application.dataPath}/09_Binaries/{typeof(T)}";
+
+        if (!Directory.Exists(directoryPath))
+        {
+            Directory.CreateDirectory(directoryPath);
+        }
+
         BinaryFormatter formatter = new BinaryFormatter();
-        FileStream stream = new FileStream($"{Application.persistentDataPath}/{fileName}.bin", FileMode.Create);
+        FileStream stream = new FileStream($"{directoryPath}/{fileName}.bin", FileMode.Create);
         formatter.Serialize(stream, t);
         stream.Close();
     }
@@ -111,8 +195,15 @@ public class MarketDataSave : MonoBehaviour
     //로드
     public T BinaryDeserialize<T>(string fileName)
     {
+        var directoryPath = $"{Application.dataPath}/09_Binaries/{typeof(T)}";
+
+        if (!Directory.Exists(directoryPath))
+        {
+            Directory.CreateDirectory(directoryPath);
+        }
+
         BinaryFormatter formatter = new BinaryFormatter();
-        FileStream stream = new FileStream($"{Application.persistentDataPath}/{fileName}.bin", FileMode.Open);
+        FileStream stream = new FileStream($"{directoryPath}/{fileName}.bin", FileMode.Open);
         T t = (T)formatter.Deserialize(stream);
         stream.Close();
         return t;

@@ -11,6 +11,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using static Google.Cloud.Firestore.V1.StructuredQuery.Types;
 using static UnityEngine.Rendering.DebugUI;
+using Debug = UnityEngine.Debug;
 
 
 public class TradeManager : BaseManager<TradeManager>
@@ -54,10 +55,64 @@ public class TradeManager : BaseManager<TradeManager>
         accountInfo.GetAccountInfo();
         CandleManager.Instance.FirstSearchAll();
         SetTradeMode(false);
+        SetConditionByMarket();
+    }
+
+    public void SetConditionByMarket()
+    {
+        _conditionByMarket = new Dictionary<MarketList, TradingParameters>();
+
+        DateTime minTimeStamp = new DateTime();
+        //minTimeStamp = TimeManager.Instance.nowTime.ToUniversalTime();//Timestamp.FromDateTime(TimeManager.Instance.nowTime.ToUniversalTime());
+        minTimeStamp = DateTime.Now;
+
+        for (int i = 0; i < (int)MarketList.MaxCount; i++)
+        {
+            MarketList market = (MarketList)i;
+            var aa = MarketDataSave.Instance.LoadTradingParameter(market.ToString());
+
+            if (aa == null)
+            {
+                _conditionByMarket.Add(market, new TradingParameters
+                {
+                    name = market.ToString(),
+
+                    stochasticK = 6,
+                    stochasticD = 6,
+                    stochasticStrength = 10,
+
+                    rsiStrength = 15,
+
+                    tradePriceEMALength = 30,
+                    tradePriceConditionMul = 2.0f,
+
+                    amountStochastic = 0,
+                    amountRSI = 0,
+                    amountStoRsiTrade = 0,
+
+                    winRateStochastic = 0.0f,
+                    winRateRSI = 0.0f,
+                    winRateStoRsiTrade = 0.0f,
+                    
+                    lastUpdate = new DateTime()
+                });
+            }
+            else
+            {
+                _conditionByMarket.Add(market, new TradingParameters(aa));
+            }
+            
+            if (_conditionByMarket[market].lastUpdate < minTimeStamp)
+            {
+                minTimeStamp = _conditionByMarket[market].lastUpdate;
+                TestManager.Instance.currentTestMarket = market;
+            }
+        }
+        Debug.Log(TestManager.Instance.currentTestMarket);
     }
 
     public void SetConditionByMarket(Dictionary<MarketList, TradingParameters> datas)
-    {
+    {/*
         _conditionByMarket = new Dictionary<MarketList, TradingParameters>(datas);
 
         if (!_conditionByMarket.Count.Equals((int)MarketList.MaxCount))
@@ -104,7 +159,7 @@ public class TradeManager : BaseManager<TradeManager>
                 minTimeStamp = _conditionByMarket[market].lastUpdate;
                 TestManager.Instance.currentTestMarket = market;
             }
-        }
+        }*/
     }
 
     public void SetConditionByMarket(MarketList market, TradingParameters data)

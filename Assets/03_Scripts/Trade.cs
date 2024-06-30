@@ -76,6 +76,35 @@ public class TradingParameters
         lastUpdate = other.lastUpdate;
     }
 
+    public TradingParameters(TradingParameterData other)
+    {
+        name = other.name;
+
+        stochasticK = other.stochasticK;
+        stochasticD = other.stochasticD;
+        stochasticStrength = other.stochasticStrength;
+
+        stochasticSellK = other.stochasticSellK;
+        stochasticSellStrength = other.stochasticSellStrength;
+
+        rsiStrength = other.rsiStrength;
+        rsiSellStrength = other.rsiSellStrength;
+
+        tradePriceEMALength = other.tradePriceEMALength;
+        tradePriceConditionMul = other.tradePriceConditionMul;
+        tradeSellPriceConditionMul = other.tradeSellPriceConditionMul;
+
+        amountStochastic = other.amountStochastic;
+        amountRSI = other.amountRSI;
+        amountStoRsiTrade = other.amountStoRsiTrade;
+
+        winRateStochastic = other.winRateStochastic;
+        winRateRSI = other.winRateRSI;
+        winRateStoRsiTrade = other.winRateStoRsiTrade;
+
+        lastUpdate = other.lastUpdate;
+    }
+
     private TradeTerms CalcTradeTerms()
     {
         if (amountStochastic > amountRSI)
@@ -243,14 +272,14 @@ public class Trade : MonoBehaviour
         DebugByPlatform.Debug.LogOnlyEditer($"판매조건을 탐색합니다. : {market}[{conditionByMarket[market].tradeTerms}] ::: TradePrice : {datas[1].trade_price} // {k.ToString("##0.0")}(80)  // {rsi.ToString("##0.0")}(70) // {(datas[1].candle_acc_trade_price / tradePriceEMA).ToString("##0.00")}({multi})");
 
         int score = 0;
-
+        /*
         //본전도 못찾는 종목은 일단 비우고 이득각이 보일때까지 거래 보류하자.
         //자칫 계속 사고팔 수 있으므로 사는 가격에 비해 리미트를 낮게 책정
         if (!ChkTradeSimulationResult(conditionByMarket[market], 1.01f))
         {
             TradeManager.Instance.SellOrder(market, datas[0].trade_price);
             return;
-        }
+        }*/
 
 
         if (ChkSellConditionStochastic(k))

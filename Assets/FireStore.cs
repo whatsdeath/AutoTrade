@@ -22,20 +22,20 @@ public class FireStore : MonoBehaviour
     bool isCertification;
 
     void Start()
-    {
+    {/*
         NextCertificationTime = Time.realtimeSinceStartup + ReCertificationInterval;
         // Initialize Firestore
-        AuthenticateWithGoogleAsync();
+        AuthenticateWithGoogleAsync();*/
     }
     
     private void FixedUpdate()
-    {
+    {/*
         //ReCertificationInterval 시간마다 자동갱신
         if (Time.realtimeSinceStartup >= NextCertificationTime)
         {
             AuthenticateWithGoogleAsync();
             NextCertificationTime += ReCertificationInterval;
-        }   
+        }   */
     }
 
     private async void AuthenticateWithGoogleAsync()
