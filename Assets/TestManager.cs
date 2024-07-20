@@ -96,26 +96,22 @@ public class TestManager : BaseManager<TestManager>
     //isRSI
     int minRSIPower
     {
-        get => TradeManager.Instance.conditionByMarket[currentTestMarket].rsiStrength - 10 >= 10 ?
-            TradeManager.Instance.conditionByMarket[currentTestMarket].rsiStrength - 5 : 10;
+        get => 7;
     }
 
     int maxRSIPower
     {
-        get => TradeManager.Instance.conditionByMarket[currentTestMarket].rsiStrength + 10 <= 20 ?
-            TradeManager.Instance.conditionByMarket[currentTestMarket].rsiStrength + 5 : 20;
+        get => 20;
     }
 
     int minSellRSIPower
     {
-        get => TradeManager.Instance.conditionByMarket[currentTestMarket].rsiSellStrength - 10 >= 10 ?
-        TradeManager.Instance.conditionByMarket[currentTestMarket].rsiSellStrength - 5 : 10;
+        get => 7;
     }
 
     int maxSellRSIPower
     {
-        get => TradeManager.Instance.conditionByMarket[currentTestMarket].rsiSellStrength + 10 <= 20 ?
-            TradeManager.Instance.conditionByMarket[currentTestMarket].rsiSellStrength + 5 : 20;
+        get => 20;
     }
 
     //int minRSIPower = 10, maxRSIPower = 30;
