@@ -8,7 +8,7 @@ public enum MarketList
 {
     WAVES, FLOW, ARB, SUI, MATIC, ARK, LINK, STX, SHIB, SEI,
     CHZ, DOGE, KNC, BLUR, PYTH, POLYX, ONG, NEAR, GLM, SOL, MLK, ELF, SNT, 
-    GAS, MTL, AVAX, AKT, LSK, STRAX, META, UPP, TAIKO, HIFI, ZRO, MaxCount, Test
+    GAS, MTL, AVAX, AKT, LSK, STRAX, META, UPP, TAIKO, HIFI, ZRO, HPO, BLAST, MaxCount, Test
 }
 
 public class CandleManager : BaseManager<CandleManager>
