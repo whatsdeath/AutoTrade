@@ -5,8 +5,8 @@ using UnityEngine;
 
 public static class GlobalValue
 {
-    public const string ACCESS_KEY = "HeSpT67EQwOF0K4xiZHHSmvZS5S6MeIDlW4QE53f";
-    public const string SECRET_KEY = "SPTQ3GZn7QcT7AGrSLS3KxPda7yDzJvgr7z6AfJ0";
+    public const string ACCESS_KEY = "hMGkxHb34wDdLhxfXxxQEs8rxS0vfNN0VOYBaggV";
+    public const string SECRET_KEY = "bB9s1cbPKgzdxM6cOoxbcBbzz4Pnbqgyz1y9zK7M";
 
     public const string SERVER_URL = "https://api.upbit.com";
 
